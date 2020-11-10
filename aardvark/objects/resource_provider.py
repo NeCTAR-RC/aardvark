@@ -34,6 +34,7 @@ class ResourceProvider(base.PlacementObject):
         super(ResourceProvider, self).__init__(uuid=uuid, name=name)
         self.uuid = uuid
         self.name = name
+        self._hypervisor = None
         self._preemptible_servers = list()
         self._capabilities = None
         self.reserved_spots = 0
@@ -103,9 +104,17 @@ class ResourceProvider(base.PlacementObject):
         return hash(self.uuid)
 
     @property
+    def hypervisor(self):
+        if self._hypervisor is None:
+            hypervisor = nova.hypervisor_get(self.uuid)
+            self._hypervisor = hypervisor
+        return self._hypervisor
+
+    @property
     def disabled(self):
         if self._disabled is None:
-            service = nova.service_status(self.name)
+            service_name = self.hypervisor.service.get('host')
+            service = nova.service_status(service_name)
             self._disabled = (service.forced_down or service.state != 'up'
                               or service.status != 'enabled')
         return self._disabled
@@ -119,7 +128,7 @@ class ResourceProvider(base.PlacementObject):
         servers = list()
         for pr_project in preemptible_projects:
             filters = {
-                'host': self.name,
+                'host': self.hypervisor.service.get('host'),
                 'project_id': pr_project,
                 'vm_state': 'ACTIVE'
             }
@@ -136,7 +145,7 @@ class ResourceProvider(base.PlacementObject):
         servers = list()
         for pr_project in preemptible_projects:
             filters = {
-                'host': self.name,
+                'host': self.hypervisor.service.get('host'),
                 'project_id': pr_project,
                 'vm_state': 'ACTIVE'
             }
