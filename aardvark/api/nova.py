@@ -67,6 +67,6 @@ def service_status(host, binary=None):
     return client.services.list(host, binary)[0]
 
 
-def hypervisor_get(uuid, binary=None):
+def hypervisor_get(uuid):
     client = _get_nova_client()
     return client.hypervisors.get(uuid)
