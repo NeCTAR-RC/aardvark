@@ -29,7 +29,7 @@ compute_group = cfg.OptGroup(
 
 compute_opts = [
     cfg.StrOpt("client_version",
-        default="2.65",
+        default="2.79",
         help="""
 Selects where the API microversion requested by the novaclient.
 """
