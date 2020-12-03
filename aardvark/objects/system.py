@@ -55,7 +55,6 @@ class System(object):
                 filters = {
                     'host': rp.name,
                     'project_id': pr_project.id_,
-                    'vm_state': 'ACTIVE'
                 }
                 servers += instance_list.instances(rp.uuid, **filters)
             rp.preemptible_servers = servers

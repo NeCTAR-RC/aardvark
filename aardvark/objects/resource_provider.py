@@ -130,7 +130,6 @@ class ResourceProvider(base.PlacementObject):
             filters = {
                 'host': self.hypervisor.service.get('host'),
                 'project_id': pr_project,
-                'vm_state': 'ACTIVE'
             }
             servers += instance_list.instances(self.uuid, **filters)
         self.preemptible_servers = servers
@@ -147,7 +146,6 @@ class ResourceProvider(base.PlacementObject):
             filters = {
                 'host': self.hypervisor.service.get('host'),
                 'project_id': pr_project,
-                'vm_state': 'ACTIVE'
             }
             servers += instance_list.sorted_instances(self.uuid, **filters)
         self.preemptible_servers = servers
