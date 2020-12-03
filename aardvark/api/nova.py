@@ -15,11 +15,13 @@
 
 from keystoneauth1 import loading as keystone_loading
 from novaclient import client
+from oslo_log import log as logging
 
 import aardvark.conf
 
 
 CONF = aardvark.conf.CONF
+LOG = logging.getLogger(__name__)
 
 
 def _get_nova_client():
@@ -31,10 +33,30 @@ def _get_nova_client():
                          region_name=CONF.compute.region_name)
 
 
-def server_delete(server):
+def server_delete(server_id):
     """Deletes the given server"""
     client = _get_nova_client()
-    return client.servers.delete(server)
+    server = client.servers.get(server_id)
+    task_state = getattr(server, 'OS-EXT-STS:task_state')
+    if task_state == 'powering-off':
+        LOG.info("Skipping deleting, server powering-off, %s", server.id)
+        return False
+    if server.status == 'SHUTOFF':
+        LOG.info("Unlocking and deleting shutoff server %s", server.id)
+        try:
+            server.unlock()
+        except Exception:
+            pass
+        server.delete()
+        return True
+
+    LOG.info("Stopping and locking server %s", server.id)
+    server.stop()
+    if float(CONF.compute.client_version) > 2.72:
+        server.lock(reason="Preemptible pending deletion")
+    else:
+        server.lock()
+    return False
 
 
 def server_rebuild(server, image):
