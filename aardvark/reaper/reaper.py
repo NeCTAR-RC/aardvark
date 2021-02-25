@@ -182,6 +182,7 @@ class Reaper(object):
     def handle_old_instance_request(self, request):
         system = system_obj.System()
         instance_list = instance_obj.InstanceList()
+        old_servers = list()
         for project in system.preemptible_projects:
             filters = {
                 'project_id': project.id_,
@@ -189,7 +190,6 @@ class Reaper(object):
                 'sort_key': 'created_at'
             }
             instances = instance_list.instances(**filters)
-            old_servers = list()
             for instance in instances:
                 lifespan = utils.seconds_since(instance.created)
                 if lifespan >= CONF.aardvark.max_life_span:
