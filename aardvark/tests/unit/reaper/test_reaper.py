@@ -94,8 +94,9 @@ class ReaperTests(base.TestCase):
         CONF.aardvark.watermark = 80
         request = fakes.make_reaper_request()
         with mock.patch.object(self.reaper, 'free_resources') as mocked:
-            self.reaper.handle_state_calculation_request(request)
-            self.assertTrue(mocked.called)
+            with mock.patch.object(self.reaper, '_delete_locked_instances'):
+                self.reaper.handle_state_calculation_request(request)
+                self.assertTrue(mocked.called)
 
     @mock.patch('aardvark.objects.system.System')
     def test_handle_state_calculation_request_not_needed(self, system_mock):
@@ -106,8 +107,9 @@ class ReaperTests(base.TestCase):
         CONF.aardvark.watermark = 80
         request = fakes.make_reaper_request()
         with mock.patch.object(self.reaper, 'free_resources') as mocked:
-            self.reaper.handle_state_calculation_request(request)
-            self.assertTrue(not mocked.called)
+            with mock.patch.object(self.reaper, '_delete_locked_instances'):
+                self.reaper.handle_state_calculation_request(request)
+                self.assertTrue(not mocked.called)
 
     @mock.patch('aardvark.api.nova.server_delete')
     @mock.patch('aardvark.api.placement.get_consumer_allocations')

@@ -165,6 +165,7 @@ class Reaper(object):
         system = system_obj.System(request.aggregates)
         system_state = system.system_state()
 
+        self._delete_locked_instances(system)
         LOG.info("Current System usage = %s", system_state.usage())
         if system_state.usage() > CONF.aardvark.watermark:
             resource_request = system_state.get_excessive_resources(
@@ -183,6 +184,7 @@ class Reaper(object):
         system = system_obj.System()
         instance_list = instance_obj.InstanceList()
         old_servers = list()
+        self._delete_locked_instances(system)
         for project in system.preemptible_projects:
             filters = {
                 'project_id': project.id_,
@@ -203,6 +205,19 @@ class Reaper(object):
             self._delete_instance(server,
                                   side_effect=exception.RetryException)
         return [server.uuid for server in old_servers]
+
+    def _delete_locked_instances(self, system):
+        instance_list = instance_obj.InstanceList()
+        projects = [p.id_ for p in system.preemptible_projects]
+        for project_id in projects:
+            filters = {
+                'project_id': project_id,
+                'locked': True,
+            }
+            instances = instance_list.instances(**filters)
+            for instance in instances:
+                LOG.info("Deleting locked instance: %s", instance.uuid)
+                self._delete_instance(instance)
 
     @utils.retries(exception.RetriesExceeded)
     def free_resources(self, request, system, slots=1, watermark_mode=False):
