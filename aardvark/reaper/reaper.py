@@ -184,6 +184,7 @@ class Reaper(object):
         instance_list = instance_obj.InstanceList()
         old_servers = list()
         for project in system.preemptible_projects:
+            self._delete_locked_instances(project)
             filters = {
                 'project_id': project.id_,
                 'sort_dir': 'asc',
@@ -203,6 +204,16 @@ class Reaper(object):
             self._delete_instance(server,
                                   side_effect=exception.RetryException)
         return [server.uuid for server in old_servers]
+
+    def _delete_locked_instances(self, project):
+        instance_list = instance_obj.InstanceList()
+        filters = {
+            'project_id': project.id_,
+            'locked': True,
+        }
+        instances = instance_list.instances(**filters)
+        for instance in instances:
+            self._delete_instance(instance)
 
     @utils.retries(exception.RetriesExceeded)
     def free_resources(self, request, system, slots=1, watermark_mode=False):
