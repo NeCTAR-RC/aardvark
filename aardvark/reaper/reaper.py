@@ -213,6 +213,7 @@ class Reaper(object):
             filters = {
                 'project_id': project_id,
                 'locked': True,
+                'status': 'SHUTOFF',
             }
             instances = instance_list.instances(**filters)
             for instance in instances:
