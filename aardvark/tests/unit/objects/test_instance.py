@@ -14,7 +14,7 @@
 #    under the License.
 
 from datetime import datetime
-import mock
+from unittest import mock
 
 import aardvark.conf
 from aardvark.objects import instance

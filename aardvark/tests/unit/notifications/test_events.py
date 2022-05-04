@@ -14,7 +14,7 @@
 #    under the License.
 
 
-import mock
+from unittest import mock
 
 from aardvark.notifications import events
 from aardvark.tests import base

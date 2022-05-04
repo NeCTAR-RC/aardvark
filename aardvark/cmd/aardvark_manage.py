@@ -75,6 +75,7 @@ class ReaperActions(object):
             t.add_row(row)
         print(t)
 
+
 handlers = {
     'reaper_action': ReaperActions
 }

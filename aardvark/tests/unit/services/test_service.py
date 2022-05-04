@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
+from unittest import mock
 
 import aardvark.conf
 from aardvark.services import reaper_service
@@ -63,4 +63,4 @@ class ReaperServiceTests(base.TestCase):
         for instance in instances:
             self.assertTrue(instance.stop_handling.called)
             self.assertTrue(instance.worker.join.called)
-            self.assertTrue(instance not in checker.reaper_instances)
+            self.assertNotIn(instance, checker.reaper_instances)

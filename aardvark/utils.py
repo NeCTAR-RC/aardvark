@@ -189,9 +189,9 @@ def split_workload(num_workers, workload):
 
     for i in range(0, num_workers):
         if i == num_workers - 1:
-            jobs.append(l for l in workload[i * ratio:])
+            jobs.append(wl for wl in workload[i * ratio:])
         else:
-            jobs.append(l for l in workload[i * ratio: (i + 1) * ratio])
+            jobs.append(wl for wl in workload[i * ratio: (i + 1) * ratio])
         if (i + 1) * ratio >= length:
             break
     return jobs

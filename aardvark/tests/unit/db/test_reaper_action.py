@@ -67,8 +67,8 @@ class ReaperActionTests(base.DbTestCase):
             uuid=uuid2, requested_instances=[requested])
         results = ra.ReaperAction.get_by_instance_uuid(requested)
         result_uuids = [res.uuid for res in results]
-        self.assertTrue(uuid1 in result_uuids)
-        self.assertTrue(uuid2 in result_uuids)
+        self.assertIn(uuid1, result_uuids)
+        self.assertIn(uuid2, result_uuids)
         self.assertEqual(2, len(result_uuids))
 
     def test_reaper_action_get_by_victim(self):

@@ -15,7 +15,7 @@
 
 import base64
 import email
-import mock
+from unittest import mock
 
 from oslo_messaging import exceptions as oslo_exc
 
