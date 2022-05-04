@@ -92,3 +92,10 @@ def service_status(host, binary=None):
 def hypervisor_get(uuid):
     client = _get_nova_client()
     return client.hypervisors.get(uuid)
+
+
+def get_preemptible_flavors():
+    client = _get_nova_client()
+    flavors = client.flavors.list()
+    return [f for f in flavors
+            if f.get_keys().get('flavor_class:name') == 'preemptible']

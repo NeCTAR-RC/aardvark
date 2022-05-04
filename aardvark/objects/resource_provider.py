@@ -119,7 +119,12 @@ class ResourceProvider(base.PlacementObject):
                               or service.status != 'enabled')
         return self._disabled
 
-    def populate(self, preemptible_projects):
+    def populate(self, preemptible_projects, preemptible_flavors=[]):
+        self.populate_projects(preemptible_projects)
+        self.populate_flavors(preemptible_flavors)
+        self.populated = True
+
+    def populate_projects(self, preemptible_projects):
         if self.disabled:
             return
         if self.populated:
@@ -132,8 +137,22 @@ class ResourceProvider(base.PlacementObject):
                 'project_id': pr_project,
             }
             servers += instance_list.instances(self.uuid, **filters)
-        self.preemptible_servers = servers
-        self.populated = True
+        self.preemptible_servers += servers
+
+    def populate_flavors(self, preemptible_flavors):
+        if self.disabled:
+            return
+        if self.populated:
+            return
+        instance_list = instance.InstanceList()
+        servers = list()
+        for flavor_id in preemptible_flavors:
+            filters = {
+                'host': self.hypervisor.service.get('host'),
+                'flavor_id': flavor_id,
+            }
+            servers += instance_list.instances(self.uuid, **filters)
+        self.preemptible_servers += servers
 
     def populate_sorted(self, preemptible_projects):
         if self.disabled:

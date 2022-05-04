@@ -42,7 +42,7 @@ class ReaperStrategy(object):
 
     @abc.abstractmethod
     def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects):
+                                projects=None, flavors=None):
         # NOTE(ttsiouts): Every driver should override this method and
         # implement the strategy of the freeing
         pass

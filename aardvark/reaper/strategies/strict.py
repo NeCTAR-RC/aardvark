@@ -34,7 +34,7 @@ class StrictStrategy(strategy.ReaperStrategy):
         super(StrictStrategy, self).__init__(watermark_mode=watermark_mode)
 
     def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects):
+                                projects, flavors=None):
         selected = list()
         selected_hosts = list()
 

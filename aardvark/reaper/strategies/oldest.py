@@ -31,11 +31,11 @@ class OldestStrategy(strategy.ReaperStrategy):
         super().__init__(watermark_mode=watermark_mode)
 
     def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects):
+                                projects, flavors=None):
         selected = list()
 
         # Find all the matching flavor combinations and order them
-        instances = self.find_matching_instances(hosts, projects)
+        instances = self.find_matching_instances(hosts, projects, flavors)
         instances = sorted(instances, key=operator.attrgetter("created"))
         removed_resources = resources.Resources()
         for instance in instances:
@@ -48,7 +48,7 @@ class OldestStrategy(strategy.ReaperStrategy):
 
         return [], selected
 
-    def find_matching_instances(self, hosts, projects):
+    def find_matching_instances(self, hosts, projects, flavors):
         """Find the best matching combination
 
         The purpose of this feature is to eliminate the idle resources. So the
@@ -67,7 +67,7 @@ class OldestStrategy(strategy.ReaperStrategy):
                     LOG.info("Skipping host %s because it is disabled",
                              host.name)
                     continue
-                self.populate_host(host, projects)
+                self.populate_host(host, projects, flavors)
                 valid.append(host)
             return valid
 
@@ -80,8 +80,8 @@ class OldestStrategy(strategy.ReaperStrategy):
         LOG.debug(instances)
         return instances
 
-    def populate_host(self, host, projects):
-        host.populate(projects)
+    def populate_host(self, host, projects, flavors):
+        host.populate(projects, flavors)
 
     def filter_servers(self, host):
         return host.preemptible_servers

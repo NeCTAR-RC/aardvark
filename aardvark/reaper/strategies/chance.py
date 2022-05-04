@@ -33,7 +33,7 @@ class ChanceStrategy(strategy.ReaperStrategy):
         super(ChanceStrategy, self).__init__(watermark_mode=watermark_mode)
 
     def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects):
+                                projects, flavors=None):
         """Implements the strategy of freeing up the requested resources.
 
         :param req_spec: an instance of the RequestSpec class representing the

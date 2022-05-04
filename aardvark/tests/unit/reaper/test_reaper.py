@@ -116,7 +116,8 @@ class ReaperTests(base.TestCase):
     @mock.patch('aardvark.api.placement.get_consumer_allocations')
     def test_free_resources(self, mock_allocs, mock_delete):
         mock_projects = [mock.Mock(id_=1), mock.Mock(id_=2)]
-        system = mock.Mock(preemptible_projects=mock_projects)
+        system = mock.Mock(preemptible_projects=mock_projects,
+                           preemptible_flavors=[])
         request = fakes.make_reaper_request()
         hosts = ['host1']
         servers = [mock.Mock(uuid='server1'), mock.Mock(uuid='server2')]
@@ -137,7 +138,8 @@ class ReaperTests(base.TestCase):
     @mock.patch('aardvark.api.nova.server_delete')
     def test_free_resources_not_found_server(self, mock_delete):
         mock_projects = [mock.Mock(id_=1), mock.Mock(id_=2)]
-        system = mock.Mock(preemptible_projects=mock_projects)
+        system = mock.Mock(preemptible_projects=mock_projects,
+                           preemptible_flavors=[])
         request = fakes.make_reaper_request()
         mock_delete.side_effect = n_exc.NotFound("")
         hosts = ['host1']

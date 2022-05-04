@@ -201,6 +201,22 @@ class Reaper(object):
                     # already sotred from the Nova API so when we find the
                     # first instance that is not old enough just break.
                     break
+        for flavor in system.preemptible_flavors:
+            filters = {
+                'flavor': flavor.id,
+                'sort_dir': 'asc',
+                'sort_key': 'created_at'
+            }
+            instances = instance_list.instances(**filters)
+            for instance in instances:
+                lifespan = utils.seconds_since(instance.created)
+                if lifespan >= CONF.aardvark.max_life_span:
+                    old_servers.append(instance)
+                else:
+                    # NOTE(ttsiouts): We are fetching the instances
+                    # already sotred from the Nova API so when we find the
+                    # first instance that is not old enough just break.
+                    break
         for server in old_servers:
             self._delete_instance(server,
                                   side_effect=exception.RetryException)
@@ -220,6 +236,17 @@ class Reaper(object):
                 LOG.info("Deleting locked instance: %s", instance.uuid)
                 self._delete_instance(instance)
 
+        for flavor in system.preemptible_flavors:
+            filters = {
+                'flavor': flavor.id,
+                'locked': True,
+                'status': 'SHUTOFF',
+            }
+            instances = instance_list.instances(**filters)
+            for instance in instances:
+                LOG.info("Deleting locked instance: %s", instance.uuid)
+                self._delete_instance(instance)
+
     @utils.retries(exception.RetriesExceeded)
     def free_resources(self, request, system, slots=1, watermark_mode=False):
 
@@ -228,10 +255,12 @@ class Reaper(object):
 
         hosts = system.resource_providers
         projects = [p.id_ for p in system.preemptible_projects]
+        flavors = [f.id for f in system.preemptible_flavors]
 
         selected_hosts, selected_servers = \
             reaper_strategy.get_preemptible_servers(request, hosts,
-                                                    slots, projects)
+                                                    slots, projects,
+                                                    flavors)
 
         for server in selected_servers:
             self._delete_instance(server,

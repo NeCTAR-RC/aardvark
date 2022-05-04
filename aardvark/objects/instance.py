@@ -81,7 +81,7 @@ class InstanceList(base.BaseObject):
         super(InstanceList, self).__init__()
 
     def instances(self, rp_uuid=None, **filters):
-        if 'project_id' in filters:
+        if 'flavor' in filters or 'project_id' in filters:
             filters.update({'all_tenants': True})
         if 'sort_dir' not in filters:
             filters['sort_dir'] = 'asc'

@@ -14,6 +14,7 @@
 #    under the License.
 
 from aardvark.objects import capabilities
+from aardvark.objects import flavor
 from aardvark.objects import instance
 from aardvark.objects import project
 from aardvark.objects import resource_provider
@@ -25,6 +26,7 @@ class System(object):
     def __init__(self, aggregates=None):
         self._rp_list = resource_provider.ResourceProviderList(aggregates)
         self._project_list = project.ProjectList()
+        self._flavor_list = flavor.FlavorList()
 
     @property
     def resource_providers(self):
@@ -37,6 +39,10 @@ class System(object):
     @property
     def preemptible_projects(self):
         return self._project_list.preemptible_projects
+
+    @property
+    def preemptible_flavors(self):
+        return self._flavor_list.preemptible_flavors
 
     def system_state(self):
         total_resources = resources.Resources()
