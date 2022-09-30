@@ -35,4 +35,5 @@ def get_preemptible_projects():
     client = _get_keystone_client()
     from aardvark.objects import project as pr_obj
     return [pr_obj.Project(project.id, project.name, True)
-            for project in client.projects.list(tags=['preemptible'])]
+            for project in client.projects.list(
+                    enabled=True, tags=['preemptible'])]
