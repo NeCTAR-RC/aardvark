@@ -149,7 +149,7 @@ class ResourceProvider(base.PlacementObject):
         for flavor_id in preemptible_flavors:
             filters = {
                 'host': self.hypervisor.service.get('host'),
-                'flavor_id': flavor_id,
+                'flavor': flavor_id,
             }
             servers += instance_list.instances(self.uuid, **filters)
         self.preemptible_servers += servers
