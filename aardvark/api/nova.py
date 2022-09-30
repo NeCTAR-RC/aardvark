@@ -96,6 +96,6 @@ def hypervisor_get(uuid):
 
 def get_preemptible_flavors():
     client = _get_nova_client()
-    flavors = client.flavors.list()
+    flavors = client.flavors.list(is_public=None)
     return [f for f in flavors
             if f.get_keys().get('flavor_class:name') == 'preemptible']
