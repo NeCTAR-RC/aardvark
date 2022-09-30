@@ -16,6 +16,7 @@
 
 import sys
 
+from oslo_cache import core as cache
 from oslo_config import cfg
 from oslo_log import log
 from oslo_service import service
@@ -43,6 +44,8 @@ def main():
 
 def prepare_service(argv=None):
     # Load the hostname in config in order to use it later
+    cache.configure(CONF)
+
     CONF.host = socket.gethostname()
 
     log.register_options(CONF)
