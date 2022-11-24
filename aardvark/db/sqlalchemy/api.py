@@ -90,7 +90,7 @@ class Connection(api.Connection):
             query = model_query(models.SchedulingEvent, session=session)
             query = query.filter_by(uuid=event_uuid)
             try:
-                ref = query.with_lockmode('update').one()
+                ref = query.with_for_update('update').one()
             except NoResultFound:
                 raise exception.SchedulingEventNotFound(uuid=event_uuid)
             ref.update(values)
@@ -133,7 +133,7 @@ class Connection(api.Connection):
             if instance_uuid:
                 query = query.filter_by(instance_uuid=instance_uuid)
             try:
-                references = query.with_lockmode('update').all()
+                references = query.with_for_update('update').all()
             except NoResultFound:
                 raise exception.InstanceSchedulingEventNotFound(
                     uuid=scheduling_event_uuid)
@@ -183,7 +183,7 @@ class Connection(api.Connection):
             query = query.filter_by(uuid=event_uuid)
             query = query.filter_by(instance_uuid=instance_uuid)
             try:
-                ref = query.with_lockmode('update').one()
+                ref = query.with_for_update('update').one()
             except NoResultFound:
                 raise exception.StateUpdateEventNotFound(uuid=event_uuid)
             ref.update(values)
@@ -234,7 +234,7 @@ class Connection(api.Connection):
             query = model_query(models.ReaperAction, session=session)
             query = query.filter_by(uuid=uuid)
             try:
-                ref = query.with_lockmode('update').one()
+                ref = query.with_for_update('update').one()
             except NoResultFound:
                 raise exception.ReaperActionNotFound(uuid=uuid)
             ref.update(values)

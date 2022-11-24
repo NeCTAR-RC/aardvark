@@ -17,7 +17,6 @@ import json
 
 from oslo_db.sqlalchemy import models
 from oslo_db.sqlalchemy.types import String
-import six.moves.urllib.parse as urlparse
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declarative_base
@@ -26,6 +25,7 @@ from sqlalchemy import schema
 from sqlalchemy import Text
 from sqlalchemy.types import TypeDecorator, TEXT
 from sqlalchemy import orm
+from urllib import parse as urlparse
 
 import aardvark.conf
 
@@ -94,6 +94,7 @@ class AardvarkBase(models.TimestampMixin,
             session = db_api.get_session()
 
         super(AardvarkBase, self).save(session)
+        session.commit()
 
 
 Base = declarative_base(cls=AardvarkBase)

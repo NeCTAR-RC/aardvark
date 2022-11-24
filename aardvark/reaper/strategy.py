@@ -14,7 +14,6 @@
 #    under the License.
 
 import abc
-import six
 
 from aardvark import exception
 
@@ -29,8 +28,7 @@ def host_potential(host, resources, include_free):
     return resources
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ReaperStrategy(object):
+class ReaperStrategy(object, metaclass=abc.ABCMeta):
     """The base Reaper Strategy class
 
     This is the class that all the Strategies for the Reaper Service have to

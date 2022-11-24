@@ -14,8 +14,6 @@
 #    under the License.
 
 
-import six
-
 from oslo_context import context
 from oslo_log import log
 from oslo_service import periodic_task
@@ -38,12 +36,11 @@ class ReaperService(service.Service):
 
     def __init__(self):
         super(ReaperService, self).__init__()
-        if six.PY3:
-            from taskflow.utils import eventlet_utils as _eu  # noqa
-            try:
-                import eventlet as _eventlet  # noqa
-            except ImportError:
-                pass
+        from taskflow.utils import eventlet_utils as _eu  # noqa
+        try:
+            import eventlet as _eventlet  # noqa
+        except ImportError:
+            pass
         self.reaper_instances = []
         self._setup_workers(utils.map_aggregate_names())
         self._setup_notification_manager()

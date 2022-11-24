@@ -15,11 +15,9 @@
 
 
 import abc
-import six
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BaseNotifier(object):
+class BaseNotifier(object, metaclass=abc.ABCMeta):
     """The base class for notifiers
 
     This is the class where all the aardvark notifiers will inherit from

@@ -1,4 +1,0 @@
-#FIX THESE FOR PY3
-aardvark.tests.unit.test_utils.UtilsTests.test_parallelize_with_kwargs
-aardvark.tests.unit.test_utils.UtilsTests.test_parallelize_with_args
-aardvark.tests.unit.test_utils.UtilsTests.test_parallelize_no_args
