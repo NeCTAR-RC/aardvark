@@ -41,6 +41,10 @@ def server_delete(server_id):
     if task_state == 'powering-off':
         LOG.info("Skipping deleting, server powering-off, %s", server.id)
         return False
+    if server.status == 'ERROR':
+        LOG.info("Deleting server in ERROR: %s", server.id)
+        server.delete()
+        return True
     if server.status == 'SHUTOFF':
         LOG.info("Unlocking and deleting shutoff server %s", server.id)
         try:
