@@ -16,12 +16,12 @@
 import json
 
 from oslo_db.sqlalchemy import models
-from oslo_db.sqlalchemy.types import String
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Integer
 from sqlalchemy import schema
+from sqlalchemy import String
 from sqlalchemy import Text
 from sqlalchemy.types import TypeDecorator, TEXT
 from sqlalchemy import orm
