@@ -1,5 +1,5 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.10-slim-bookworm
+FROM python:3.12-slim-trixie
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -12,12 +12,12 @@ COPY requirements.txt .
 
 RUN apt-get update && apt-get install -y gcc git
 
-RUN python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 -r requirements.txt
+RUN python -m pip install -c https://releases.openstack.org/constraints/upper/2026.1 -r requirements.txt
 
 WORKDIR /app
 COPY . /app
 
-RUN python -m pip install -c https://releases.openstack.org/constraints/upper/2024.1 -e /app
+RUN python -m pip install -c https://releases.openstack.org/constraints/upper/2026.1 -e /app
 
 # Creates a non-root user and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers

@@ -14,7 +14,7 @@
 #    under the License.
 
 from oslo_db import exception as db_exc
-from oslo_db.sqlalchemy import session as db_session
+from oslo_db.sqlalchemy import enginefacade
 from oslo_utils import uuidutils
 from sqlalchemy import orm
 from sqlalchemy.orm.exc import NoResultFound
@@ -26,24 +26,23 @@ from aardvark import exception
 
 
 CONF = aardvark.conf.CONF
-_FACADE = None
+_CONTEXT_MANAGER = None
 
 
-def _create_facade_lazily():
-    global _FACADE
-    if _FACADE is None:
-        _FACADE = db_session.EngineFacade.from_config(CONF)
-    return _FACADE
+def _create_context_manager():
+    global _CONTEXT_MANAGER
+    if _CONTEXT_MANAGER is None:
+        _CONTEXT_MANAGER = enginefacade.transaction_context()
+        _CONTEXT_MANAGER.configure(connection=CONF.database.connection)
+    return _CONTEXT_MANAGER
 
 
 def get_engine():
-    facade = _create_facade_lazily()
-    return facade.get_engine()
+    return _create_context_manager().writer.get_engine()
 
 
 def get_session(**kwargs):
-    facade = _create_facade_lazily()
-    return facade.get_session(**kwargs)
+    return _create_context_manager().writer.get_sessionmaker()(**kwargs)
 
 
 def get_backend():
@@ -90,7 +89,7 @@ class Connection(api.Connection):
             query = model_query(models.SchedulingEvent, session=session)
             query = query.filter_by(uuid=event_uuid)
             try:
-                ref = query.with_for_update('update').one()
+                ref = query.with_for_update().one()
             except NoResultFound:
                 raise exception.SchedulingEventNotFound(uuid=event_uuid)
             ref.update(values)
@@ -136,7 +135,7 @@ class Connection(api.Connection):
             if instance_uuid:
                 query = query.filter_by(instance_uuid=instance_uuid)
             try:
-                references = query.with_for_update('update').all()
+                references = query.with_for_update().all()
             except NoResultFound:
                 raise exception.InstanceSchedulingEventNotFound(
                     uuid=scheduling_event_uuid
@@ -188,7 +187,7 @@ class Connection(api.Connection):
             query = query.filter_by(uuid=event_uuid)
             query = query.filter_by(instance_uuid=instance_uuid)
             try:
-                ref = query.with_for_update('update').one()
+                ref = query.with_for_update().one()
             except NoResultFound:
                 raise exception.StateUpdateEventNotFound(uuid=event_uuid)
             ref.update(values)
@@ -240,7 +239,7 @@ class Connection(api.Connection):
             query = model_query(models.ReaperAction, session=session)
             query = query.filter_by(uuid=uuid)
             try:
-                ref = query.with_for_update('update').one()
+                ref = query.with_for_update().one()
             except NoResultFound:
                 raise exception.ReaperActionNotFound(uuid=uuid)
             ref.update(values)
