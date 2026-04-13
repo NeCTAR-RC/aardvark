@@ -207,6 +207,106 @@ class EmailNotifierTests(ReaperNotifierTests):
         CONF.reaper_notifier.cc = self.cc_addresses
         CONF.reaper_notifier.bcc = self.bcc_addresses
 
+    def test_validate_email_address_valid(self):
+        result = notifier.email_notifier._validate_email_address(
+            "user@example.com"
+        )
+        self.assertEqual("user@example.com", result)
+
+    def test_validate_email_address_no_domain(self):
+        CONF.reaper_notifier.default_email_domain = "@example.com"
+        result = notifier.email_notifier._validate_email_address("user")
+        self.assertEqual("user@example.com", result)
+
+    @mock.patch("smtplib.SMTP")
+    def test_notify_about_instance(self, mock_smtplib):
+        mock_smtp_conn = mock.Mock()
+        mock_smtplib.return_value = mock_smtp_conn
+        CONF.reaper_notifier.subject = "subject"
+        CONF.reaper_notifier.body = "body"
+        instance = mock.Mock(
+            owner="owner@cern.ch", uuid="uuid1", user_id="user1"
+        )
+        type(instance).name = mock.PropertyMock(return_value="name1")
+        self.notifier.notify_about_instance(instance)
+        mock_smtp_conn.sendmail.assert_called_once()
+
+    @mock.patch("smtplib.SMTP")
+    def test_notify_about_instance_exception(self, mock_smtplib):
+        mock_smtplib.side_effect = Exception("smtp error")
+        CONF.reaper_notifier.subject = "subject"
+        CONF.reaper_notifier.body = "body"
+        instance = mock.Mock(
+            owner="owner@cern.ch", uuid="uuid1", user_id="user1"
+        )
+        type(instance).name = mock.PropertyMock(return_value="name1")
+        # Should not raise
+        self.notifier.notify_about_instance(instance)
+
+    def test_notify_about_action_nop_state_calculation(self):
+        action = mock.Mock()
+        action.event = ra.ActionEvent.STATE_CALCULATION
+        action.state = ra.ActionState.FAILED
+        # nop event — should return without sending
+        self.notifier.notify_about_action(action)
+
+    def test_notify_about_action_nop_killer_request(self):
+        action = mock.Mock()
+        action.event = ra.ActionEvent.KILLER_REQUEST
+        action.state = ra.ActionState.FAILED
+        self.notifier.notify_about_action(action)
+
+    def test_notify_about_action_not_failed(self):
+        action = mock.Mock()
+        action.event = ra.ActionEvent.BUILD_REQUEST
+        action.state = ra.ActionState.SUCCESS
+        self.notifier.notify_about_action(action)
+
+    def test_notify_about_action_no_bcc(self):
+        CONF.reaper_notifier.bcc = []
+        action = mock.Mock()
+        action.event = ra.ActionEvent.BUILD_REQUEST
+        action.state = ra.ActionState.FAILED
+        self.notifier.notify_about_action(action)
+
+    def test_notify_about_action_failed_sends_email(self):
+        action = mock.Mock()
+        action.event = ra.ActionEvent.BUILD_REQUEST
+        action.state = ra.ActionState.FAILED
+        action.uuid = "action-uuid1"
+        action.fault_reason = "some error"
+        action.requested_instances = ["inst1"]
+        with mock.patch(
+            "aardvark.reaper.notifier.email_notifier.CONF"
+        ) as mock_conf:
+            mock_conf.reaper_notifier.bcc = self.bcc_addresses
+            mock_conf.reaper_notifier.sender = "no-reply@cern.ch"
+            mock_conf.host = "test-host"
+            with mock.patch.object(self.notifier, "send_message") as mock_send:
+                self.notifier.notify_about_action(action)
+                mock_send.assert_called_once()
+
+    def test_notify_about_action_exception(self):
+        action = mock.Mock()
+        action.event = ra.ActionEvent.BUILD_REQUEST
+        action.state = ra.ActionState.FAILED
+        action.uuid = "action-uuid1"
+        action.fault_reason = "some error"
+        action.requested_instances = ["inst1"]
+        with mock.patch(
+            "aardvark.reaper.notifier.email_notifier.CONF"
+        ) as mock_conf:
+            mock_conf.reaper_notifier.bcc = self.bcc_addresses
+            mock_conf.reaper_notifier.sender = "no-reply@cern.ch"
+            mock_conf.host = "test-host"
+            with mock.patch.object(
+                self.notifier,
+                "send_message",
+                side_effect=Exception("smtp error"),
+            ):
+                # Should not raise
+                self.notifier.notify_about_action(action)
+
     def test_format_with_details(self):
         instance = mock.Mock(
             owner="owner", uuid="fake_uuid", user_id="fake_user"

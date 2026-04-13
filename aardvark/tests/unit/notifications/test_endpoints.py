@@ -79,6 +79,39 @@ class SchedulingEndpointTests(EndpointsTests):
         event = events.SchedulingEvent.get_by_instance_uuid("instance_uuid1")
         self.assertEqual(2, event.count_scheduling_instances(handled=False))
 
+    @mock.patch("aardvark.utils.seconds_since")
+    def test_scheduling_check_old_notification_discards(self, mock_since):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = 10
+        mock_since.return_value = 100
+        metadata = {
+            "timestamp": "2024-01-01 00:00:00.000000",
+            "message_id": "msg-id",
+        }
+        sched_payload = fakes.make_scheduling_payload(["sched-disc-inst"])
+        result = self.endpoint.error(
+            None, None, "event_type", sched_payload, metadata
+        )
+        self.assertEqual(self.endpoint.handled(), result)
+
+    def test_error_payload_db_exception(self):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = -1
+        from aardvark import exception
+
+        instances = ["db-exc-instance"]
+        sched_payload = fakes.make_scheduling_payload(instances)
+        with mock.patch(
+            "aardvark.notifications.events.SchedulingEvent.create",
+            side_effect=exception.DBException("db error"),
+        ):
+            # Should not raise — DBException is caught
+            self.endpoint.error(None, None, None, sched_payload, None)
+
 
 class StateUpdateEndpointTests(EndpointsTests):
     def setUp(self):
@@ -269,3 +302,105 @@ class StateUpdateEndpointTests(EndpointsTests):
             self.assertTrue(True)
         except Exception:
             self.assertTrue(False)
+
+    @mock.patch("aardvark.utils.seconds_since")
+    def test_check_old_notification_discards(self, mock_since):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = 10
+        mock_since.return_value = 100  # older than threshold
+        metadata = {
+            "timestamp": "2024-01-01 00:00:00.000000",
+            "message_id": "msg-id",
+        }
+        # Use a state_update payload (StateUpdateEndpoint expects this format)
+        payload = fakes.make_state_update_payload(
+            "disc-inst", "active", "building", "img", "flv"
+        )
+        result = self.endpoint.info(
+            None, None, "event_type", payload, metadata
+        )
+        self.assertEqual(self.endpoint.handled(), result)
+
+    @mock.patch("aardvark.utils.seconds_since")
+    def test_check_old_notification_passes(self, mock_since):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = 100
+        mock_since.return_value = 10  # newer than threshold — passes through
+        metadata = {
+            "timestamp": "2024-01-01 00:00:00.000000",
+            "message_id": "msg-id",
+        }
+        # Use a non-failed-build payload so info() returns default_action
+        payload = fakes.make_state_update_payload(
+            "some-inst", "active", "building", "img", "flv"
+        )
+        self.endpoint.info(None, None, "event_type", payload, metadata)
+
+    def test_check_old_notification_disabled(self):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = -1
+        payload = fakes.make_state_update_payload(
+            "some-inst", "active", "building", "img", "flv"
+        )
+        metadata = {
+            "timestamp": "2024-01-01 00:00:00.000000",
+            "message_id": "msg-id",
+        }
+        # Should pass through (disabled)
+        self.endpoint.info(None, None, "event_type", payload, metadata)
+
+    def test_check_old_notification_no_metadata(self):
+        import aardvark.conf
+
+        CONF = aardvark.conf.CONF
+        CONF.notification.old_notification = 10
+        payload = fakes.make_state_update_payload(
+            "some-inst", "active", "building", "img", "flv"
+        )
+        # metadata is None — should pass through
+        self.endpoint.info(None, None, "event_type", payload, None)
+
+    def test_info_exception_branch(self):
+        instance = "exc-inst-uuid"
+        payload = fakes.make_state_update_payload(
+            instance, "pending", "building", "img", "flv"
+        )
+        mock_reset = mock.Mock()
+        self.endpoint._reset_instances = mock_reset
+        with mock.patch.object(self.endpoint, "trigger_reaper") as trigger:
+            trigger.side_effect = Exception("unexpected error")
+            result = self.endpoint.info(None, None, None, payload, None)
+        self.assertEqual(self.endpoint.handled(), result)
+        mock_reset.assert_called_once_with([instance])
+
+    def test_instances_from_payload(self):
+        instance = "from-payload-inst"
+        payload = fakes.make_state_update_payload(
+            instance, "active", "building", "img", "flv"
+        )
+        result = self.endpoint.instances_from_payload(payload)
+        self.assertEqual([instance], result)
+
+    @mock.patch("aardvark.api.nova.server_reset_state")
+    def test_pre_discard_hook_failed_build(self, mock_reset):
+        instance = "pre-discard-inst"
+        payload = fakes.make_state_update_payload(
+            instance, "pending", "building", "img", "flv"
+        )
+        self.endpoint._pre_discard_hook(payload)
+        mock_reset.assert_called_once_with(instance)
+
+    @mock.patch("aardvark.api.nova.server_reset_state")
+    def test_pre_discard_hook_not_failed(self, mock_reset):
+        instance = "pre-discard-active"
+        payload = fakes.make_state_update_payload(
+            instance, "active", "building", "img", "flv"
+        )
+        self.endpoint._pre_discard_hook(payload)
+        mock_reset.assert_not_called()

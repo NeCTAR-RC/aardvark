@@ -97,3 +97,29 @@ class ReaperActionTests(base.DbTestCase):
 
     def test_reaper_action_get_by_victim_not_found(self):
         self.assertEqual([], ra.ReaperAction.get_by_victim_uuid("not-there"))
+
+    def test_reaper_action_object_create(self):
+        action = ra.ReaperAction()
+        action.state = ra.ActionState.ONGOING
+        action.event = ra.ActionEvent.BUILD_REQUEST
+        action.requested_instances = ["inst-uuid-obj1"]
+        action.victims = []
+        action.fault_reason = None
+        action.create()
+        self.assertIsNotNone(action.uuid)
+
+    def test_reaper_action_object_update(self):
+        db_action = utils.create_test_reaper_action(
+            uuid="upd-obj-uuid", state="ONGOING"
+        )
+        action = ra.ReaperAction.get_by_uuid(db_action.uuid)
+        action.state = ra.ActionState.SUCCESS
+        action.update()
+        refreshed = ra.ReaperAction.get_by_uuid(db_action.uuid)
+        self.assertEqual(ra.ActionState.SUCCESS, refreshed.state)
+
+    def test_list_reaper_actions_object(self):
+        utils.create_test_reaper_action(uuid="list-obj-uuid1")
+        results = ra.ReaperAction.list_reaper_actions()
+        uuids = [r.uuid for r in results]
+        self.assertIn("list-obj-uuid1", uuids)
