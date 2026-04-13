@@ -35,14 +35,17 @@ CONF = aardvark.conf.CONF
 
 def table_args():
     engine_name = urlparse.urlparse(CONF.database.connection).scheme
-    if engine_name == 'mysql':
-        return {'mysql_engine': CONF.database.mysql_engine,
-                'mysql_charset': "utf8"}
+    if engine_name == "mysql":
+        return {
+            "mysql_engine": CONF.database.mysql_engine,
+            "mysql_charset": "utf8",
+        }
     return None
 
 
 class JsonEncodedType(TypeDecorator):
     """Abstract base type serialized as json-encoded string in db."""
+
     type = None
     impl = TEXT
 
@@ -52,11 +55,11 @@ class JsonEncodedType(TypeDecorator):
             # interface the consistent.
             value = self.type()
         elif not isinstance(value, self.type):
-            raise TypeError("%(class)s supposes to store "
-                            "%(type)s objects, but %(value)s "
-                            "given" % {'class': self.__class__.__name__,
-                                       'type': self.type.__name__,
-                                       'value': type(value).__name__})
+            raise TypeError(
+                f"{self.__class__.__name__} supposes to store "
+                f"{self.type.__name__} objects, but {type(value).__name__} "
+                "given"
+            )
         serialized_value = json.dumps(value)
         return serialized_value
 
@@ -68,17 +71,17 @@ class JsonEncodedType(TypeDecorator):
 
 class JSONEncodedDict(JsonEncodedType):
     """Represents dict serialized as json-encoded string in db."""
+
     type = dict
 
 
 class JSONEncodedList(JsonEncodedType):
     """Represents list serialized as json-encoded string in db."""
+
     type = list
 
 
-class AardvarkBase(models.TimestampMixin,
-                   models.ModelBase):
-
+class AardvarkBase(models.TimestampMixin, models.ModelBase):
     metadata = None
 
     def as_dict(self):
@@ -93,7 +96,7 @@ class AardvarkBase(models.TimestampMixin,
         if session is None:
             session = db_api.get_session()
 
-        super(AardvarkBase, self).save(session)
+        super().save(session)
         session.commit()
 
 
@@ -103,11 +106,11 @@ Base = declarative_base(cls=AardvarkBase)
 class SchedulingEvent(Base):
     """Represents a SchedulingEvent."""
 
-    __tablename__ = 'scheduling_event'
+    __tablename__ = "scheduling_event"
     __table_args__ = (
-        schema.UniqueConstraint('uuid', name='uniq_scheduling0uuid'),
-        schema.UniqueConstraint('request_id', name='uniq_req0request_id'),
-        table_args()
+        schema.UniqueConstraint("uuid", name="uniq_scheduling0uuid"),
+        schema.UniqueConstraint("request_id", name="uniq_req0request_id"),
+        table_args(),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -118,10 +121,8 @@ class SchedulingEvent(Base):
 
 
 class InstanceSchedulingEvent(Base):
-    __tablename__ = 'instance_scheduling_event'
-    __table_args__ = (
-        table_args()
-    )
+    __tablename__ = "instance_scheduling_event"
+    __table_args__ = table_args()
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     instance_uuid = Column(String(36))
@@ -130,20 +131,19 @@ class InstanceSchedulingEvent(Base):
 
     scheduling_event = orm.relationship(
         "SchedulingEvent",
-        backref='scheduling_event',
-        primaryjoin='and_(InstanceSchedulingEvent.event_uuid == '
-                    'SchedulingEvent.uuid)',
-        foreign_keys=event_uuid
+        backref="scheduling_event",
+        primaryjoin="and_(InstanceSchedulingEvent.event_uuid == SchedulingEvent.uuid)",
+        foreign_keys=event_uuid,
     )
 
 
 class StateUpdateEvent(Base):
     """Represents a StateUpdateEvent."""
 
-    __tablename__ = 'state_update_event'
+    __tablename__ = "state_update_event"
     __table_args__ = (
-        schema.UniqueConstraint('uuid', name='uniq_state_update0uuid'),
-        table_args()
+        schema.UniqueConstraint("uuid", name="uniq_state_update0uuid"),
+        table_args(),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -158,10 +158,10 @@ class StateUpdateEvent(Base):
 class ReaperAction(Base):
     """Represents a Reaper Action"""
 
-    __tablename__ = 'reaper_action'
+    __tablename__ = "reaper_action"
     __table_args__ = (
-        schema.UniqueConstraint('uuid', name='uniq_action0uuid'),
-        table_args()
+        schema.UniqueConstraint("uuid", name="uniq_action0uuid"),
+        table_args(),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)

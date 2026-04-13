@@ -14,12 +14,13 @@
 #    under the License.
 
 
-class Resources(object):
+class Resources:
     """Internal representation of resources
 
     Just a helper class that enables the reaper to make simple calculations
     with resources.
     """
+
     # NOTE(ttsiouts): Be careful when comparing! Use comparisons only from the
     # pov of the first operand!!!!!
     # e.g. a = {vcpu: 3, memory: 1024}, b = {vcpu: 2, memory: 512}
@@ -40,43 +41,43 @@ class Resources(object):
     def obj_from_inventories(inventories):
         resources = {}
         for rc, inventory in inventories.items():
-            allocation_ratio = inventory['allocation_ratio']
-            reserved = inventory['reserved']
-            total = inventory['total'] * allocation_ratio - reserved
+            allocation_ratio = inventory["allocation_ratio"]
+            reserved = inventory["reserved"]
+            total = inventory["total"] * allocation_ratio - reserved
             resources[rc] = total
         return Resources(resources)
 
     @staticmethod
     def obj_from_flavor(flavor, is_bfv=False):
-        vcpus = flavor['vcpus']
-        disk = flavor['ephemeral'] + flavor['disk'] + flavor['swap']
-        ram = flavor['ram']
+        vcpus = flavor["vcpus"]
+        disk = flavor["ephemeral"] + flavor["disk"] + flavor["swap"]
+        ram = flavor["ram"]
 
         # TODO(ttsiouts): Here we have to check the extra_specs of the flavor
         resources = {}
         if vcpus > 0:
-            resources.update({'VCPU': vcpus})
+            resources.update({"VCPU": vcpus})
         if disk > 0 and not is_bfv:
-            resources.update({'DISK_GB': disk})
+            resources.update({"DISK_GB": disk})
         if ram > 0:
-            resources.update({'MEMORY_MB': ram})
+            resources.update({"MEMORY_MB": ram})
 
         return Resources(resources)
 
     @staticmethod
     def obj_from_payload(flavor, is_bfv=False):
-        vcpus = flavor['vcpus']
-        disk = flavor['ephemeral_gb'] + flavor['root_gb'] + flavor['swap']
-        ram = flavor['memory_mb']
+        vcpus = flavor["vcpus"]
+        disk = flavor["ephemeral_gb"] + flavor["root_gb"] + flavor["swap"]
+        ram = flavor["memory_mb"]
 
         # TODO(ttsiouts): Here we have to check the extra_specs of the flavor
         resources = {}
         if vcpus > 0:
-            resources.update({'VCPU': vcpus})
+            resources.update({"VCPU": vcpus})
         if disk > 0 and not is_bfv:
-            resources.update({'DISK_GB': disk})
+            resources.update({"DISK_GB": disk})
         if ram > 0:
-            resources.update({'MEMORY_MB': ram})
+            resources.update({"MEMORY_MB": ram})
 
         return Resources(resources)
 
@@ -129,8 +130,10 @@ class Resources(object):
         # e.g. a = {vcpu: 100, memory: 1024}, b = {vcpu: 1, memory: 512}
         #      a / b = 2 (because a.memory / b.memory = 2)
         resources = self.resources | other.resources
-        return {rc: getattr(self, rc, 0) / getattr(other, rc, 1)
-                for rc in resources}
+        return {
+            rc: getattr(self, rc, 0) / getattr(other, rc, 1)
+            for rc in resources
+        }
 
     def _div_with_int(self, other):
         resources = {}
@@ -139,41 +142,42 @@ class Resources(object):
         return Resources(resources)
 
     def __eq__(self, other):
-        return all([
-            getattr(self, r) == getattr(other, r, 0) for r in self.resources
-        ])
+        return all(
+            [getattr(self, r) == getattr(other, r, 0) for r in self.resources]
+        )
 
     def __ne__(self, other):
-        return any([
-            getattr(self, r) != getattr(other, r, 0) for r in self.resources
-        ])
+        return any(
+            [getattr(self, r) != getattr(other, r, 0) for r in self.resources]
+        )
 
     def __gt__(self, other):
-        return all([
-            getattr(self, r) > getattr(other, r, 0) for r in self.resources
-        ])
+        return all(
+            [getattr(self, r) > getattr(other, r, 0) for r in self.resources]
+        )
 
     def __lt__(self, other):
-        return all([
-            getattr(self, r) < getattr(other, r, 0) for r in self.resources
-        ])
+        return all(
+            [getattr(self, r) < getattr(other, r, 0) for r in self.resources]
+        )
 
     def __ge__(self, other):
-        return all([
-            getattr(self, r) >= getattr(other, r, 0) for r in self.resources
-        ])
+        return all(
+            [getattr(self, r) >= getattr(other, r, 0) for r in self.resources]
+        )
 
     def __le__(self, other):
-        return all([
-            getattr(self, r) <= getattr(other, r, 0) for r in self.resources
-        ])
+        return all(
+            [getattr(self, r) <= getattr(other, r, 0) for r in self.resources]
+        )
 
     __truediv__ = __div__
 
     def __repr__(self):
-        text = ', '.join(['%s: %s' % (res, getattr(self, res))
-                         for res in self.resources])
-        return '<Resources(%s)>' % text
+        text = ", ".join(
+            [f"{res}: {getattr(self, res)}" for res in self.resources]
+        )
+        return f"<Resources({text})>"
 
     def to_dict(self):
         tdict = dict()

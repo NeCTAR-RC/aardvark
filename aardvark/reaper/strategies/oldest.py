@@ -26,12 +26,12 @@ CONF = aardvark.conf.CONF
 
 
 class OldestStrategy(strategy.ReaperStrategy):
-
     def __init__(self, watermark_mode):
         super().__init__(watermark_mode=watermark_mode)
 
-    def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects, flavors=None):
+    def get_preemptible_servers(
+        self, requested, hosts, num_instances, projects, flavors=None
+    ):
         selected = list()
 
         # Find all the matching flavor combinations and order them
@@ -64,8 +64,9 @@ class OldestStrategy(strategy.ReaperStrategy):
             valid = []
             for host in hosts:
                 if host.disabled:
-                    LOG.info("Skipping host %s because it is disabled",
-                             host.name)
+                    LOG.info(
+                        "Skipping host %s because it is disabled", host.name
+                    )
                     continue
                 self.populate_host(host, projects, flavors)
                 valid.append(host)

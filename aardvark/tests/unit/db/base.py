@@ -28,7 +28,6 @@ _DB_CACHE = None
 
 
 class Database(fixtures.Fixture):
-
     def __init__(self, db_api, db_migrate, sql_connection):
         self.sql_connection = sql_connection
 
@@ -45,7 +44,7 @@ class Database(fixtures.Fixture):
         if db_migrate.version():
             return
         models.Base.metadata.create_all(self.engine)
-        db_migrate.stamp('head')
+        db_migrate.stamp("head")
 
     def _setUp(self):
         conn = self.engine.connect()
@@ -57,14 +56,14 @@ class Database(fixtures.Fixture):
 
 
 class DbTestCase(base.TestCase):
-
     def setUp(self):
-        super(DbTestCase, self).setUp()
+        super().setUp()
 
         self.dbapi = dbapi.get_instance()
 
         global _DB_CACHE
         if not _DB_CACHE:
-            _DB_CACHE = Database(sqla_api, migration,
-                                 sql_connection=CONF.database.connection)
+            _DB_CACHE = Database(
+                sqla_api, migration, sql_connection=CONF.database.connection
+            )
         self.useFixture(_DB_CACHE)

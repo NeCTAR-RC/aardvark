@@ -17,32 +17,32 @@ from keystoneauth1 import loading as ks_loading
 from oslo_config import cfg
 
 
-SERVICE_TYPE = 'compute'
+SERVICE_TYPE = "compute"
 
 
 compute_group = cfg.OptGroup(
-    'compute',
-    title='Compute Service Options',
-    help="Configuration options for connecting to the Nova API service"
+    "compute",
+    title="Compute Service Options",
+    help="Configuration options for connecting to the Nova API service",
 )
 
 
 compute_opts = [
-    cfg.StrOpt("client_version",
+    cfg.StrOpt(
+        "client_version",
         default="2.65",
         help="""
 Selects where the API microversion requested by the novaclient.
-"""
+""",
     ),
 ]
 
 
 def register_opts(conf):
-
     conf.register_group(compute_group)
     conf.register_opts(compute_opts, group=compute_group)
 
-    group = getattr(compute_group, 'name', compute_group)
+    group = getattr(compute_group, "name", compute_group)
 
     ks_loading.register_session_conf_options(conf, group)
     ks_loading.register_auth_conf_options(conf, group)
@@ -52,11 +52,13 @@ def register_opts(conf):
 
 
 def get_ksa_adapter_opts(default_service_type, deprecated_opts=None):
-
     opts = ks_loading.get_adapter_conf_options(
-        include_deprecated=False, deprecated_opts=deprecated_opts)
+        include_deprecated=False, deprecated_opts=deprecated_opts
+    )
 
-    cfg.set_defaults(opts,
-                     valid_interfaces=['internal', 'public'],
-                     service_type=default_service_type)
+    cfg.set_defaults(
+        opts,
+        valid_interfaces=["internal", "public"],
+        service_type=default_service_type,
+    )
     return opts

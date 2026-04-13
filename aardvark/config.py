@@ -26,7 +26,9 @@ def parse_args(argv, default_config_files=None):
     log.register_options(CONF)
     log.set_defaults(default_log_levels=log.get_default_log_levels())
 
-    CONF(argv[1:],
-         project='aardvark',
-         version=version.version_info,
-         default_config_files=default_config_files)
+    CONF(
+        argv[1:],
+        project="aardvark",
+        version=version.version_info,
+        default_config_files=default_config_files,
+    )

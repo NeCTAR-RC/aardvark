@@ -31,23 +31,29 @@ class AardvarkException(Exception):
             self.message = self.message % kwargs
         except Exception:
             ex_name = self.__class__.__name__
-            LOG.exception("Exception in string format operation, "
-                          "exception type: %s, kwargs: %s", ex_name, kwargs)
-        super(AardvarkException, self).__init__(self.message)
+            LOG.exception(
+                "Exception in string format operation, exception type: %s, kwargs: %s",
+                ex_name,
+                kwargs,
+            )
+        super().__init__(self.message)
 
 
 class RetryException(AardvarkException):
     """Generic Exception for the retries mechanism"""
+
     message = ""
 
 
 class RetriesExceeded(AardvarkException):
     """Exception raised optionally from the retries mechanism"""
+
     message = ""
 
 
 class BadConfigException(AardvarkException):
     """Generic Exception raised by bad configuration"""
+
     message = "Unknown error occurred because of bad configuration"
 
 
@@ -57,6 +63,7 @@ class ParallelTimeout(AardvarkException):
 
 class ReaperException(AardvarkException):
     """Base Reaper Exception"""
+
     message = "Unknown error occurred during Reaper's execution"
 
 
@@ -78,7 +85,8 @@ class UnknownRequestType(ReaperException):
 
 class DBException(AardvarkException):
     """Base DB Exception"""
-    message = "An error ocurred while accessing the database."
+
+    message = "An error occurred while accessing the database."
 
 
 class SchedulingEventAlreadyExists(DBException):

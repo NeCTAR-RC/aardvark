@@ -17,35 +17,39 @@ from oslo_config import cfg
 
 
 aardvark_group = cfg.OptGroup(
-    'aardvark',
-    title='Aardvark Service Options',
-    help="Configuration options for Aardvark service")
+    "aardvark",
+    title="Aardvark Service Options",
+    help="Configuration options for Aardvark service",
+)
 
 
 aardvark_opts = [
-    cfg.BoolOpt('enable_notification_handling',
-                default=True,
-                help="""
-Enable notification hanlding
+    cfg.BoolOpt(
+        "enable_notification_handling",
+        default=True,
+        help="""
+Enable notification handling
 
 If this option is enabled, then the reaper will be triggered by error
 notifications about the scheduling of an instance.
-"""
+""",
     ),
-    cfg.BoolOpt('enable_watermark_mode',
-                default=False,
-                help="""
+    cfg.BoolOpt(
+        "enable_watermark_mode",
+        default=False,
+        help="""
 Enable watermark mode
 
 If this option is True, a periodic task is added to the reaper service, that
 periodically posts a StateCalculation job in the Reaper's Jobboard. The reaper
 will try to maintain the system usage below the configured limit by 'culling'
 preemptible servers.
-"""
+""",
     ),
-    cfg.IntOpt('watermark',
-               default=95,
-               help="""
+    cfg.IntOpt(
+        "watermark",
+        default=95,
+        help="""
 Max usage per resource class.
 
 Represents the allowed usage percentage for each resource class. As soon as
@@ -54,57 +58,64 @@ keep the usage of the resource class below the watermak level.
 
 This is taken under consideration only if the watermark mode is enabled. To
 enable it, set the config option aardvark.enable_watermark_mode to True.
-"""
+""",
     ),
-    cfg.IntOpt('periodic_interval',
-               default=10,
-               help="""
+    cfg.IntOpt(
+        "periodic_interval",
+        default=10,
+        help="""
 Default interval (in seconds) for running periodic tasks.
-"""
+""",
     ),
-    cfg.BoolOpt('benchmarking_mode',
-                default=False,
-                help="""
+    cfg.BoolOpt(
+        "benchmarking_mode",
+        default=False,
+        help="""
 Enable benchmarking mode
 
 Print out the time it takes to execute critical sections of the code.
-"""
+""",
     ),
-    cfg.BoolOpt('resources_from_flavor',
-                default=True,
-                help="""
+    cfg.BoolOpt(
+        "resources_from_flavor",
+        default=True,
+        help="""
 Instead of going to placement for every instance resources, we just extract
 them from the flavor used. If set to False for each instance we will query
 Placement API.
-"""
+""",
     ),
-    cfg.IntOpt('quick_kill_seconds',
-               default=0,
-               help="""
-Instances that live less than the specified quick_kill_time are prefered for
+    cfg.IntOpt(
+        "quick_kill_seconds",
+        default=0,
+        help="""
+Instances that live less than the specified quick_kill_time are preferred for
 killing. NOTE: this value is expected to be in seconds.
-"""
+""",
     ),
-    cfg.BoolOpt('enable_periodic_killer',
-                default=True,
-                help="""
+    cfg.BoolOpt(
+        "enable_periodic_killer",
+        default=True,
+        help="""
 Enable a periodic task that checks for instances that exceed the maximum life
 span.
-"""
+""",
     ),
-    cfg.IntOpt('killer_interval',
-               default=43200,
-               help="""
+    cfg.IntOpt(
+        "killer_interval",
+        default=43200,
+        help="""
 This specifies the interval for checking for old instances.
 NOTE: this value is expected to be in seconds.
-"""
+""",
     ),
-    cfg.IntOpt('max_life_span',
-               default=86400,
-               help="""
+    cfg.IntOpt(
+        "max_life_span",
+        default=86400,
+        help="""
 Instances that live more than the specified max_life_span will be deleted when
 the periodic check runs. NOTE: this value is expected to be in seconds.
-"""
+""",
     ),
 ]
 

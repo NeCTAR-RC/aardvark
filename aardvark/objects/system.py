@@ -21,8 +21,7 @@ from aardvark.objects import resource_provider
 from aardvark.objects import resources
 
 
-class System(object):
-
+class System:
     def __init__(self, aggregates=None):
         self._rp_list = resource_provider.ResourceProviderList(aggregates)
         self._project_list = project.ProjectList()
@@ -59,8 +58,8 @@ class System(object):
             servers = list()
             for pr_project in self.preemptible_projects:
                 filters = {
-                    'host': rp.name,
-                    'project_id': pr_project.id_,
+                    "host": rp.name,
+                    "project_id": pr_project.id_,
                 }
                 servers += instance_list.instances(rp.uuid, **filters)
             rp.preemptible_servers = servers

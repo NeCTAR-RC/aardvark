@@ -21,20 +21,20 @@ from aardvark.objects import resources as res_obj
 
 
 def make_resources(vcpu=0, memory=0, disk=0):
-
     res_dict = {}
     if vcpu > 0:
-        res_dict.update({'VCPU': vcpu})
+        res_dict.update({"VCPU": vcpu})
     if disk > 0:
-        res_dict.update({'DISK_GB': disk})
+        res_dict.update({"DISK_GB": disk})
     if memory > 0:
-        res_dict.update({'MEMORY_MB': memory})
+        res_dict.update({"MEMORY_MB": memory})
 
     return res_obj.Resources(res_dict)
 
 
-def make_flavor(uuid=None, vcpus=1, ephemeral=0, root_gb=20, swap=0, ram=2000,
-                name=None):
+def make_flavor(
+    uuid=None, vcpus=1, ephemeral=0, root_gb=20, swap=0, ram=2000, name=None
+):
     flavor = {
         "uuid": uuid or "fake_uuid",
         "vcpus": vcpus,
@@ -42,19 +42,19 @@ def make_flavor(uuid=None, vcpus=1, ephemeral=0, root_gb=20, swap=0, ram=2000,
         "disk": root_gb,
         "swap": swap,
         "ram": ram,
-        "original_name": name or "flavor1"
+        "original_name": name or "flavor1",
     }
     return flavor
 
 
 def make_server(resources=None, uuid=None, flavor=None, flavor_name=None):
     resources = resources or make_resources(vcpu=1, memory=512, disk=10)
-    uuid = uuid or 'server1'
+    uuid = uuid or "server1"
     kwargs = {
-        'vcpus': getattr(resources, 'VCPU', 0),
-        'ram': getattr(resources, 'MEMORY_MB', 0),
-        'root_gb': getattr(resources, 'DISK_GB', 0),
-        'name': flavor_name
+        "vcpus": getattr(resources, "VCPU", 0),
+        "ram": getattr(resources, "MEMORY_MB", 0),
+        "root_gb": getattr(resources, "DISK_GB", 0),
+        "name": flavor_name,
     }
 
     flavor = flavor or make_flavor(**kwargs)
@@ -62,11 +62,7 @@ def make_server(resources=None, uuid=None, flavor=None, flavor_name=None):
 
 
 def make_inventory_dict(ratio=1.0, reserved=0, total=10):
-    return {
-        'allocation_ratio': ratio,
-        'reserved': reserved,
-        'total': total
-    }
+    return {"allocation_ratio": ratio, "reserved": reserved, "total": total}
 
 
 def make_capabilities(used=None, total=None):
@@ -75,10 +71,11 @@ def make_capabilities(used=None, total=None):
     return capabilities.Capabilities(used, total)
 
 
-def make_resource_provider(uuid=None, name=None, capabilities=None,
-                           reserved_spots=0):
-    uuid = uuid or 'fake_rp_uuid'
-    name = name or 'fake_rp_name'
+def make_resource_provider(
+    uuid=None, name=None, capabilities=None, reserved_spots=0
+):
+    uuid = uuid or "fake_rp_uuid"
+    name = name or "fake_rp_name"
     capabilities = capabilities or make_capabilities()
     rp = resource_provider.ResourceProvider(uuid, name)
     rp._capabilities = capabilities

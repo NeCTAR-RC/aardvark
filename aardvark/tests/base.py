@@ -26,14 +26,14 @@ try:
     log.register_options(CONF)
 except cfg.ArgsAlreadyParsedError:
     pass
-CONF.set_override('use_stderr', False)
+CONF.set_override("use_stderr", False)
 
 
 class BaseTestCase(testscenarios.WithScenarios, base.BaseTestCase):
     """Test base class."""
 
     def setUp(self):
-        super(BaseTestCase, self).setUp()
+        super().setUp()
         self.addCleanup(cfg.CONF.reset)
 
 
@@ -41,5 +41,5 @@ class TestCase(base.BaseTestCase):
     """Test case base class for all unit tests."""
 
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
         self.useFixture(conf_fixture.ConfFixture())

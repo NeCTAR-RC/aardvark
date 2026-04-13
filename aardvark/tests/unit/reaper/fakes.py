@@ -20,29 +20,35 @@ from aardvark.tests.unit.objects import fakes as object_fakes
 
 def make_reaper_action(**kwargs):
     action = reaper_action.ReaperAction()
-    action.uuid = kwargs.get('uuid', 'fake-action-uuid')
-    action.event = kwargs.get(
-        'event', reaper_action.ActionEvent.BUILD_REQUEST)
-    action.state = kwargs.get(
-        'state', reaper_action.ActionState.ONGOING)
-    action.victims = kwargs.get('victims', ['fake-victim1', 'fake-victim2'])
-    action.requested_instances = kwargs.get('requested_instances',
-                                            ['requested1', 'requested2'])
-    action.fault_reason = kwargs.get('fault_reason', None)
+    action.uuid = kwargs.get("uuid", "fake-action-uuid")
+    action.event = kwargs.get("event", reaper_action.ActionEvent.BUILD_REQUEST)
+    action.state = kwargs.get("state", reaper_action.ActionState.ONGOING)
+    action.victims = kwargs.get("victims", ["fake-victim1", "fake-victim2"])
+    action.requested_instances = kwargs.get(
+        "requested_instances", ["requested1", "requested2"]
+    )
+    action.fault_reason = kwargs.get("fault_reason", None)
     return action
 
 
-def make_reaper_request(uuids=None, project=None, resources=None,
-                        image=None, event_type=None, aggregates=None):
-    uuids = uuids or ['instance_uuid']
-    project = project or ['project_id']
+def make_reaper_request(
+    uuids=None,
+    project=None,
+    resources=None,
+    image=None,
+    event_type=None,
+    aggregates=None,
+):
+    uuids = uuids or ["instance_uuid"]
+    project = project or ["project_id"]
     resources = resources or object_fakes.make_resources()
     image = image or "image_uuid"
     event_type = event_type or reaper_action.ActionEvent.BUILD_REQUEST
-    return reaper_request.ReaperRequest(uuids, project, resources, image,
-                                        event_type, aggregates=aggregates)
+    return reaper_request.ReaperRequest(
+        uuids, project, resources, image, event_type, aggregates=aggregates
+    )
 
 
 def make_calculation_request(aggregates=None):
-    aggregates = aggregates or ['aggregate1', 'aggregate2']
+    aggregates = aggregates or ["aggregate1", "aggregate2"]
     return reaper_request.StateCalculationRequest(aggregates)

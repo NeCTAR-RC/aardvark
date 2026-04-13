@@ -18,7 +18,6 @@ from aardvark.objects import base
 
 
 class Project(base.BaseObject):
-
     def __init__(self, id_, name, preemptible=False):
         self.id_ = id_
         self.name = name
@@ -26,9 +25,8 @@ class Project(base.BaseObject):
 
 
 class ProjectList(base.BaseObject):
-
     def __init__(self):
-        super(ProjectList, self).__init__()
+        super().__init__()
 
     @property
     def preemptible_projects(self):

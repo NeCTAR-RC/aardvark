@@ -24,8 +24,9 @@ _IMPL = None
 def get_backend():
     global _IMPL
     if not _IMPL:
-        _IMPL = driver.DriverManager("aardvark.database.migration_backend",
-                                     CONF.database.backend).driver
+        _IMPL = driver.DriverManager(
+            "aardvark.database.migration_backend", CONF.database.backend
+        ).driver
     return _IMPL
 
 

@@ -20,20 +20,20 @@ from aardvark.reaper import reaper_action
 
 
 def request_from_job(request):
-    if request['req_type'] == "ReaperRequest":
+    if request["req_type"] == "ReaperRequest":
         return ReaperRequest.from_primitive(request)
-    elif request['req_type'] == "StateCalculationRequest":
+    elif request["req_type"] == "StateCalculationRequest":
         return StateCalculationRequest.from_primitive(request)
-    elif request['req_type'] == "OldInstanceKillerRequest":
+    elif request["req_type"] == "OldInstanceKillerRequest":
         return OldInstanceKillerRequest.from_primitive(request)
     else:
         raise exception.UnknownRequestType()
 
 
-class ReaperRequest(object):
-
-    def __init__(self, uuids, project_id, resources, image, event_type,
-                 aggregates=None):
+class ReaperRequest:
+    def __init__(
+        self, uuids, project_id, resources, image, event_type, aggregates=None
+    ):
         self.req_type = self.__class__.__name__
         self.uuids = uuids
         self.image = image
@@ -44,28 +44,35 @@ class ReaperRequest(object):
 
     @staticmethod
     def from_primitive(primitive):
-        uuids = primitive['uuids']
-        project_id = primitive['project_id']
-        image = primitive['image']
-        resources = resources_obj.Resources(primitive['resources'])
-        aggregates = primitive['aggregates']
-        event_type = primitive['event_type']
-        return ReaperRequest(uuids, project_id, resources, image, event_type,
-                             aggregates=aggregates)
+        uuids = primitive["uuids"]
+        project_id = primitive["project_id"]
+        image = primitive["image"]
+        resources = resources_obj.Resources(primitive["resources"])
+        aggregates = primitive["aggregates"]
+        event_type = primitive["event_type"]
+        return ReaperRequest(
+            uuids,
+            project_id,
+            resources,
+            image,
+            event_type,
+            aggregates=aggregates,
+        )
 
     def to_dict(self):
         return {
-            'req_type': self.req_type,
-            'uuids': self.uuids,
-            'project_id': self.project_id,
-            'resources': self.resources.to_dict(),
-            'image': self.image,
-            'event_type': self.event_type,
-            'aggregates': self.aggregates
+            "req_type": self.req_type,
+            "uuids": self.uuids,
+            "project_id": self.project_id,
+            "resources": self.resources.to_dict(),
+            "image": self.image,
+            "event_type": self.event_type,
+            "aggregates": self.aggregates,
         }
 
     def __eq__(self, other):
-        return (self.aggregates == other.aggregates
+        return (
+            self.aggregates == other.aggregates
             and self.uuids == other.uuids
             and self.image == other.image
             and self.project_id == other.project_id
@@ -74,8 +81,7 @@ class ReaperRequest(object):
         )
 
 
-class StateCalculationRequest(object):
-
+class StateCalculationRequest:
     def __init__(self, aggregates):
         self.req_type = self.__class__.__name__
         self.aggregates = aggregates
@@ -83,23 +89,20 @@ class StateCalculationRequest(object):
 
     @staticmethod
     def from_primitive(primitive):
-        aggregates = primitive['aggregates']
+        aggregates = primitive["aggregates"]
         return StateCalculationRequest(aggregates)
 
     def to_dict(self):
-        return {
-            'req_type': self.req_type,
-            'aggregates': self.aggregates
-        }
+        return {"req_type": self.req_type, "aggregates": self.aggregates}
 
     def __eq__(self, other):
-        return (self.aggregates == other.aggregates
+        return (
+            self.aggregates == other.aggregates
             and self.req_type == other.req_type
         )
 
 
-class OldInstanceKillerRequest(object):
-
+class OldInstanceKillerRequest:
     def __init__(self):
         self.req_type = self.__class__.__name__
         self.event_type = reaper_action.ActionEvent.KILLER_REQUEST
@@ -110,5 +113,5 @@ class OldInstanceKillerRequest(object):
 
     def to_dict(self):
         return {
-            'req_type': self.req_type,
+            "req_type": self.req_type,
         }

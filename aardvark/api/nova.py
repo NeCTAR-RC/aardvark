@@ -25,27 +25,30 @@ LOG = logging.getLogger(__name__)
 
 
 def _get_nova_client():
-    auth_plugin = keystone_loading.load_auth_from_conf_options(
-        CONF, 'compute')
+    auth_plugin = keystone_loading.load_auth_from_conf_options(CONF, "compute")
     session = keystone_loading.load_session_from_conf_options(
-        CONF, 'compute', auth=auth_plugin)
-    return client.Client(CONF.compute.client_version, session=session,
-                         region_name=CONF.compute.region_name)
+        CONF, "compute", auth=auth_plugin
+    )
+    return client.Client(
+        CONF.compute.client_version,
+        session=session,
+        region_name=CONF.compute.region_name,
+    )
 
 
 def server_delete(server_id):
     """Deletes the given server"""
     client = _get_nova_client()
     server = client.servers.get(server_id)
-    task_state = getattr(server, 'OS-EXT-STS:task_state')
-    if task_state == 'powering-off':
+    task_state = getattr(server, "OS-EXT-STS:task_state")
+    if task_state == "powering-off":
         LOG.info("Skipping deleting, server powering-off, %s", server.id)
         return False
-    if server.status == 'ERROR':
+    if server.status == "ERROR":
         LOG.info("Deleting server in ERROR: %s", server.id)
         server.delete()
         return True
-    if server.status == 'SHUTOFF':
+    if server.status == "SHUTOFF":
         LOG.info("Unlocking and deleting shutoff server %s", server.id)
         try:
             server.unlock()
@@ -101,5 +104,8 @@ def hypervisor_get(uuid):
 def get_preemptible_flavors():
     client = _get_nova_client()
     flavors = client.flavors.list(is_public=None)
-    return [f for f in flavors
-            if f.get_keys().get('flavor_class:name') == 'preemptible']
+    return [
+        f
+        for f in flavors
+        if f.get_keys().get("flavor_class:name") == "preemptible"
+    ]

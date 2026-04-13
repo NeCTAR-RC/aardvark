@@ -19,17 +19,17 @@ from aardvark.tests.unit.reaper import fakes
 
 
 class ReaperRequestTests(base.TestCase):
-
     def setUp(self):
-        super(ReaperRequestTests, self).setUp()
+        super().setUp()
 
     def _make_request(self):
         return fakes.make_reaper_request()
 
     def assert_requests(self, request1, request2, attributes):
         for attribute in attributes:
-            self.assertEqual(getattr(request1, attribute),
-                             getattr(request2, attribute))
+            self.assertEqual(
+                getattr(request1, attribute), getattr(request2, attribute)
+            )
 
     def test_request(self):
         request1 = self._make_request()
@@ -39,9 +39,8 @@ class ReaperRequestTests(base.TestCase):
 
 
 class StateCalculationRequestTests(ReaperRequestTests):
-
     def setUp(self):
-        super(StateCalculationRequestTests, self).setUp()
+        super().setUp()
 
     def _make_request(self):
         return fakes.make_calculation_request()

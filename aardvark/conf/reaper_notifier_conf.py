@@ -17,53 +17,60 @@ from oslo_config import cfg
 
 
 reaper_notifier_group = cfg.OptGroup(
-    'reaper_notifier',
-    title='Aardvark Notifiers Options',
-    help="Configuration options for Aardvark notifiers")
+    "reaper_notifier",
+    title="Aardvark Notifiers Options",
+    help="Configuration options for Aardvark notifiers",
+)
 
 reaper_notifier_opts = [
-    cfg.ListOpt('enabled_notifiers',
-                default=['log'],
-                help="""
-This specifies a list of notifiers to be used uppon deleting an instance. The
+    cfg.ListOpt(
+        "enabled_notifiers",
+        default=["log"],
+        help="""
+This specifies a list of notifiers to be used upon deleting an instance. The
 possible options would be the following:
 
 * log:   Uses python logging to log the action
 * oslo:  Sends a standard OpenStack notification
 * email: Emails the owner of the instance (To use this option more config
                                            options are needed)
-"""
+""",
     ),
-    cfg.StrOpt('sender',
-               help="""
+    cfg.StrOpt(
+        "sender",
+        help="""
 Specifies the sender of the email to the owner(s) of the instance. This option
 is required for email notifier only.
-"""
+""",
     ),
-    cfg.StrOpt('smtp_server',
-               help="""
+    cfg.StrOpt(
+        "smtp_server",
+        help="""
 Specifies the body of the email to the owner(s) of the instance. This option
 is required for email notifier only.
-"""
+""",
     ),
-    cfg.StrOpt('smtp_password',
-               default=None,
-               secret=True,
-               help="""
+    cfg.StrOpt(
+        "smtp_password",
+        default=None,
+        secret=True,
+        help="""
 Specifies the password for connecting to the smtp server. This option
 is taken into account only when email notifier is used.
-"""
+""",
     ),
-    cfg.ListOpt('cc',
-                default=[],
-                help="""
+    cfg.ListOpt(
+        "cc",
+        default=[],
+        help="""
 Specifies the addresses to be cc'd in the email to the owner(s) of the
 instance. This option is taken into account only when email notifier is used.
-"""
+""",
     ),
-    cfg.ListOpt('bcc',
-                default=[],
-                help="""
+    cfg.ListOpt(
+        "bcc",
+        default=[],
+        help="""
 Specifies the addresses to be bcc'd in the email to the owner(s) of the
 instance. This is supposed to be used by operators that want to keep a copy of
 the emails sent by the service to the users. At the same time if this config
@@ -71,13 +78,14 @@ option is set, then Aardvark will send a debug email when an action fails,
 containing the action, the triggering request as well as the traceback of the
 raised exception. This option is taken into account only when email notifier
 is used.
-"""
+""",
     ),
-    cfg.StrOpt('subject',
-               default="""
+    cfg.StrOpt(
+        "subject",
+        default="""
 Preemptible instance <instance_uuid> was terminated
 """,
-               help="""
+        help="""
 Specifies the subject of the email to the owner(s) of the instance. The user
 can add the following tags and aardvark will format the body with the
 information of the instance that is being terminated:
@@ -85,17 +93,18 @@ information of the instance that is being terminated:
 * <instance_name>: will be replaced by the name of the instance
 * <instance_uuid>: will be replaced by the uuid of the instance
 This option is taken into account only when email notifier is used.
-"""
+""",
     ),
-    cfg.StrOpt('body',
-               default="""
+    cfg.StrOpt(
+        "body",
+        default="""
 Dear <user_id>,
 
 Your preemptible instance with id: <instance_uuid> was terminated.
 
 Aardvark
 """,
-               help="""
+        help="""
 Specifies the body of the email to the owner(s) of the instance. The user can
 add the following tags and aardvark will format the body with the information
 of the instance that is being terminated:
@@ -103,22 +112,24 @@ of the instance that is being terminated:
 * <instance_name>: will be replaced by the name of the instance
 * <instance_uuid>: will be replaced by the uuid of the instance
 This option is taken into account only when email notifier is used.
-"""
+""",
     ),
-    cfg.StrOpt('default_email_domain',
-               help="""
+    cfg.StrOpt(
+        "default_email_domain",
+        help="""
 If the address found from the instance does not match the email regex, then
 aardvark will fall back to this email domain. It should be in this format:
 "@example.com". This option is taken into account only when email notifier is
 used.
-"""
+""",
     ),
-    cfg.ListOpt('oslo_topics',
-                default=[],
-                help="""
+    cfg.ListOpt(
+        "oslo_topics",
+        default=[],
+        help="""
 Specifies the topics where the reaper notifications will be sent.
 This option is taken into account only when oslo notifier is used.
-"""
+""",
     ),
 ]
 

@@ -19,19 +19,18 @@ import aardvark.conf
 CONF = aardvark.conf.CONF
 
 
-class Inventory(object):
-
-    _attrs = ['used', 'max_unit', 'step_size', 'min_unit', 'total']
+class Inventory:
+    _attrs = ["used", "max_unit", "step_size", "min_unit", "total"]
 
     def __init__(self, resource_class, **kwargs):
         self.resource_class = resource_class
 
-        allocation_ratio = kwargs['allocation_ratio']
-        reserved = kwargs['reserved']
+        allocation_ratio = kwargs["allocation_ratio"]
+        reserved = kwargs["reserved"]
 
         for attr in self._attrs:
             try:
-                if attr == 'total':
+                if attr == "total":
                     total = float(kwargs[attr] - reserved) * allocation_ratio
                     setattr(self, attr, total)
                     continue
@@ -66,9 +65,9 @@ class Inventory(object):
 
     def __add__(self, other):
         kwargs = {
-            'used': self.used + other.used,
-            'reserved': self.reserved + other.reserved,
-            'total': self.total + other.total,
+            "used": self.used + other.used,
+            "reserved": self.reserved + other.reserved,
+            "total": self.total + other.total,
         }
         return Inventory(self.resource_class, **kwargs)
 
@@ -76,6 +75,4 @@ class Inventory(object):
         return self.to_str()
 
     def to_str(self):
-        return "<Inventory: %s: total: %s , used: %s, usage: %s%%>" % (
-            self.resource_class, self.total, self.used + self.reserved,
-            self.usage)
+        return f"<Inventory: {self.resource_class}: total: {self.total} , used: {self.used + self.reserved}, usage: {self.usage}%>"

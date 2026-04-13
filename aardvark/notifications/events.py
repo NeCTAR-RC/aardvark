@@ -29,18 +29,23 @@ class SchedulingEvent(base.NotificationEvent):
     """Scheduling Event"""
 
     dbapi = dbapi.get_instance()
-    fields = ['instance_uuids', 'request_spec', 'request_id', 'retries',
-              'uuid']
+    fields = [
+        "instance_uuids",
+        "request_spec",
+        "request_id",
+        "retries",
+        "uuid",
+    ]
 
     def __init__(self):
-        super(SchedulingEvent, self).__init__()
+        super().__init__()
 
     @staticmethod
     def from_payload(payload):
         event = SchedulingEvent()
-        event.instance_uuids = payload['nova_object.data']['instance_uuids']
-        event.request_spec = payload['nova_object.data']['request_spec']
-        event.request_id = event.request_spec['nova_object.data']['id']
+        event.instance_uuids = payload["nova_object.data"]["instance_uuids"]
+        event.request_spec = payload["nova_object.data"]["request_spec"]
+        event.request_id = event.request_spec["nova_object.data"]["id"]
         event.retries = 0
         return event
 
@@ -52,7 +57,8 @@ class SchedulingEvent(base.NotificationEvent):
         event.uuid = db_object.uuid
         event.retries = db_object.retries
         instances = SchedulingEvent.dbapi.list_scheduling_event_instances(
-            event.uuid)
+            event.uuid
+        )
         event.instance_uuids = [
             instance.instance_uuid for instance in instances
         ]
@@ -64,14 +70,14 @@ class SchedulingEvent(base.NotificationEvent):
 
     @property
     def project_id(self):
-        return self.request_spec['nova_object.data']['project_id']
+        return self.request_spec["nova_object.data"]["project_id"]
 
     @property
     def aggregates(self):
         try:
-            d = self.request_spec['nova_object.data']['requested_destination']
-            aggs = d['nova_object.data']['aggregates']
-            return aggs[0].split(',')
+            d = self.request_spec["nova_object.data"]["requested_destination"]
+            aggs = d["nova_object.data"]["aggregates"]
+            return aggs[0].split(",")
         except TypeError:
             # In case destination is not set it will be None, so trying to
             # access its items will raise a TypeError.
@@ -80,29 +86,28 @@ class SchedulingEvent(base.NotificationEvent):
     @staticmethod
     def get_by_instance_uuid(instance_uuid):
         db_object = SchedulingEvent.dbapi.get_instance_scheduling_event(
-            instance_uuid)
+            instance_uuid
+        )
         return SchedulingEvent.from_db_object(db_object.scheduling_event)
 
     @staticmethod
     def get_by_request_id(request_id):
         db_object = SchedulingEvent.dbapi.get_scheduling_event_by_request_id(
-            request_id)
+            request_id
+        )
         return SchedulingEvent.from_db_object(db_object)
 
     def create(self):
         values = {
-            'request_id': self.request_id,
-            'request_spec': self.request_spec,
-            'retries': 0
+            "request_id": self.request_id,
+            "request_spec": self.request_spec,
+            "retries": 0,
         }
         try:
             db_obj = self.dbapi.create_scheduling_event(values)
             self.uuid = db_obj.uuid
             for instance in self.instance_uuids:
-                values = {
-                    'instance_uuid': instance,
-                    'event_uuid': self.uuid
-                }
+                values = {"instance_uuid": instance, "event_uuid": self.uuid}
                 self.dbapi.create_instance_scheduling_event(values)
         except exception.SchedulingEventAlreadyExists:
             self = self.get_by_request_id(self.request_id)
@@ -111,16 +116,17 @@ class SchedulingEvent(base.NotificationEvent):
         self.refresh()
 
     def set_handled(self, instance_uuid=None, handled=True):
-        values = {'handled': handled}
+        values = {"handled": handled}
         if instance_uuid:
             self.dbapi.update_instance_scheduling_event(
-                self.uuid, values, instance_uuid=instance_uuid)
+                self.uuid, values, instance_uuid=instance_uuid
+            )
         else:
             self.dbapi.update_instance_scheduling_event(self.uuid, values)
         self.refresh()
 
     def increase_retries(self):
-        values = {'retries': self.retries + 1}
+        values = {"retries": self.retries + 1}
         ref = self.dbapi.update_scheduling_event(self.uuid, values)
         self = self.from_db_object(ref)
         self.refresh()
@@ -142,35 +148,44 @@ class StateUpdateEvent(base.NotificationEvent):
     """State Update Event"""
 
     dbapi = dbapi.get_instance()
-    fields = ['instance_uuid', 'state_update', 'image', 'flavor', 'handled',
-              'uuid', 'block_devices']
+    fields = [
+        "instance_uuid",
+        "state_update",
+        "image",
+        "flavor",
+        "handled",
+        "uuid",
+        "block_devices",
+    ]
 
     def __init__(self):
-        super(StateUpdateEvent, self).__init__()
+        super().__init__()
         self.handled = False
 
     @staticmethod
     def from_payload(payload):
         event = StateUpdateEvent()
-        event.instance_uuid = payload['nova_object.data']['uuid']
-        event.state_update = payload['nova_object.data']['state_update']
-        flavor_data = payload['nova_object.data']['flavor']['nova_object.data']
+        event.instance_uuid = payload["nova_object.data"]["uuid"]
+        event.state_update = payload["nova_object.data"]["state_update"]
+        flavor_data = payload["nova_object.data"]["flavor"]["nova_object.data"]
         event.flavor = flavor_data
         try:
-            event.block_devices = payload['nova_object.data']['block_devices']
+            event.block_devices = payload["nova_object.data"]["block_devices"]
             if event.block_devices is None:
                 event.block_devices = []
-        except (KeyError):
-            LOG.warning("Notifications from Nova do not contaion"
-                        " block device mapping. No way to know if"
-                        " an instance is booting from volume")
+        except KeyError:
+            LOG.warning(
+                "Notifications from Nova do not contaion"
+                " block device mapping. No way to know if"
+                " an instance is booting from volume"
+            )
             event.block_devices = []
         if event.is_bfv:
             # If the instance boots from volume we need to
             # fetch the image information from the volume.
             event.image = cinder.get_image_from_volume(event.root_volume)
         else:
-            event.image = payload['nova_object.data']['image_uuid']
+            event.image = payload["nova_object.data"]["image_uuid"]
         return event
 
     @staticmethod
@@ -185,38 +200,46 @@ class StateUpdateEvent(base.NotificationEvent):
 
     @property
     def old_state(self):
-        return self.state_update['nova_object.data']['old_state']
+        return self.state_update["nova_object.data"]["old_state"]
 
     @property
     def new_state(self):
-        return self.state_update['nova_object.data']['state']
+        return self.state_update["nova_object.data"]["state"]
 
     @property
     def old_task_state(self):
-        return self.state_update['nova_object.data']['old_task_state']
+        return self.state_update["nova_object.data"]["old_task_state"]
 
     @property
     def new_task_state(self):
-        return self.state_update['nova_object.data']['new_task_state']
+        return self.state_update["nova_object.data"]["new_task_state"]
 
     def is_failed_build(self):
-        return self.old_state == 'building' and self.new_state == 'pending'
+        return self.old_state == "building" and self.new_state == "pending"
 
     def is_failed_rebuild(self):
-        return (self.new_state == 'pending'
-            and self.old_task_state == 'rebuilding'
-            and self.new_task_state is None)
+        return (
+            self.new_state == "pending"
+            and self.old_task_state == "rebuilding"
+            and self.new_task_state is None
+        )
 
     @property
     def is_bfv(self):
-        return any([bdm['nova_object.data']['boot_index'] == 0
-                    for bdm in self.block_devices])
+        return any(
+            [
+                bdm["nova_object.data"]["boot_index"] == 0
+                for bdm in self.block_devices
+            ]
+        )
 
     @property
     def root_volume(self):
-        root_volumes = [bdm['nova_object.data']['volume_id']
-                        for bdm in self.block_devices
-                        if bdm['nova_object.data']['boot_index'] == 0]
+        root_volumes = [
+            bdm["nova_object.data"]["volume_id"]
+            for bdm in self.block_devices
+            if bdm["nova_object.data"]["boot_index"] == 0
+        ]
         if not root_volumes:
             return None
         return root_volumes[0]
@@ -229,26 +252,27 @@ class StateUpdateEvent(base.NotificationEvent):
     @staticmethod
     def get_by_instance_uuid(instance_uuid):
         db_obj = StateUpdateEvent.dbapi.get_state_update_event_by_instance(
-            instance_uuid)
+            instance_uuid
+        )
         return StateUpdateEvent.from_db_object(db_obj)
 
     def create(self):
         values = {
-            'instance_uuid': self.instance_uuid,
-            'state_update': self.state_update,
-            'image': self.image,
-            'flavor': self.flavor,
-            'handled': False
+            "instance_uuid": self.instance_uuid,
+            "state_update": self.state_update,
+            "image": self.image,
+            "flavor": self.flavor,
+            "handled": False,
         }
         db_obj = self.dbapi.create_state_update_event(values)
         self.uuid = db_obj.uuid
         self.refresh()
 
     def set_handled(self, handled=True):
-        values = {'handled': handled}
-        self.dbapi.update_instance_state_update_event(self.uuid,
-                                                      self.instance_uuid,
-                                                      values)
+        values = {"handled": handled}
+        self.dbapi.update_instance_state_update_event(
+            self.uuid, self.instance_uuid, values
+        )
         self.refresh()
 
     def refresh(self):

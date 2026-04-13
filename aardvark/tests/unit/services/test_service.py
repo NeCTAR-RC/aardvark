@@ -25,34 +25,31 @@ CONF = aardvark.conf.CONF
 
 
 class ReaperServiceTests(base.TestCase):
-
     def setUp(self):
-        super(ReaperServiceTests, self).setUp()
+        super().setUp()
 
-    @mock.patch('aardvark.utils.map_aggregate_names')
-    @mock.patch('aardvark.reaper.job_manager.JobManager')
+    @mock.patch("aardvark.utils.map_aggregate_names")
+    @mock.patch("aardvark.reaper.job_manager.JobManager")
     def test_system_calculator(self, job_man, aggregates_map):
-        aggs = [['agg1'], ['agg2']]
+        aggs = [["agg1"], ["agg2"]]
         aggregates_map.return_value = aggs
         calculator = reaper_service.SystemStateCalculator()
         calculator.calculate_system_state(None)
         requests = [
             reaper_fakes.make_calculation_request(aggregates=a) for a in aggs
         ]
-        calculator.job_manager.post_job.assert_has_calls([
-            mock.call(req) for req in requests
-        ], any_order=True)
+        calculator.job_manager.post_job.assert_has_calls(
+            [mock.call(req) for req in requests], any_order=True
+        )
 
-    @mock.patch('aardvark.reaper.reaper.Reaper')
-    @mock.patch('taskflow.utils.threading_utils')
+    @mock.patch("aardvark.reaper.reaper.Reaper")
+    @mock.patch("taskflow.utils.threading_utils")
     def test_worker_health_check(self, mocked_utils, mocked_reaper):
-        aggs = [['agg1'], ['agg2']]
-        instances = [
-            mock.Mock(aggregates=agg, missed_acks=0) for agg in aggs
-        ]
-        checker = reaper_service.ReaperWorkerHealthCheck([
-            ins for ins in instances
-        ])
+        aggs = [["agg1"], ["agg2"]]
+        instances = [mock.Mock(aggregates=agg, missed_acks=0) for agg in aggs]
+        checker = reaper_service.ReaperWorkerHealthCheck(
+            [ins for ins in instances]
+        )
         for i in range(1, 7):
             checker.check_worker_state(None)
             for instance in checker.reaper_instances:

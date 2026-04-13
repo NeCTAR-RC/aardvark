@@ -14,19 +14,17 @@
 #    under the License.
 
 
-class BaseObject(object):
-
+class BaseObject:
     def __init__(self, *args, **kwargs):
         pass
 
 
 class PlacementObject(BaseObject):
-
     def __init__(self, *args, **kwargs):
         pass
 
 
-class PersistentObject(object):
+class PersistentObject:
     """Base class for all objects stored in aardvark DB"""
 
     fields = []
@@ -34,13 +32,13 @@ class PersistentObject(object):
     db_map = {}
 
     def __init__(self):
-        object.__setattr__(self, 'changes', {})
+        object.__setattr__(self, "changes", {})
 
     def __setattr__(self, attr, value):
         self.changes[attr] = value
         if attr in self.enum_fields:
             self.changes[attr] = value.value
-        super(PersistentObject, self).__setattr__(attr, value)
+        super().__setattr__(attr, value)
 
     def reset_changes(self):
         self.changes = {}

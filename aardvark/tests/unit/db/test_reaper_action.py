@@ -22,7 +22,6 @@ from aardvark.tests.unit.db import utils
 
 
 class ReaperActionTests(base.DbTestCase):
-
     def test_create_reaper_action(self):
         utils.create_test_reaper_action()
 
@@ -34,37 +33,45 @@ class ReaperActionTests(base.DbTestCase):
 
     def test_create_reaper_action_duplicate(self):
         utils.create_test_reaper_action()
-        self.assertRaises(exception.ReaperActionAlreadyExists,
-                          utils.create_test_reaper_action)
+        self.assertRaises(
+            exception.ReaperActionAlreadyExists,
+            utils.create_test_reaper_action,
+        )
 
     def test_reaper_action_update(self):
         action = utils.create_test_reaper_action(state="ONGOING")
-        values = {'state': "SUCCESS"}
+        values = {"state": "SUCCESS"}
         dbapi = db_api.get_instance()
         dbapi.update_reaper_action(action.uuid, values)
         new = ra.ReaperAction.get_by_uuid(action.uuid)
         self.assertEqual(ra.ActionState.SUCCESS, new.state)
 
     def test_reaper_action_update_not_found(self):
-        values = {'state': "SUCCESS"}
+        values = {"state": "SUCCESS"}
         dbapi = db_api.get_instance()
-        self.assertRaises(exception.ReaperActionNotFound,
-                          dbapi.update_reaper_action, 'not-existing', values)
+        self.assertRaises(
+            exception.ReaperActionNotFound,
+            dbapi.update_reaper_action,
+            "not-existing",
+            values,
+        )
 
     def test_reaper_action_get_by_uuid(self):
-        uuid = 'fake-uuid'
+        uuid = "fake-uuid"
         action = utils.create_test_reaper_action(uuid=uuid)
         new = ra.ReaperAction.get_by_uuid(uuid)
         self.assertEqual(action.uuid, new.uuid)
 
     def test_reaper_action_get_by_instance_uuid(self):
-        requested = 'fake-instance-uuid'
-        uuid1 = 'fake-action-uuid1'
-        uuid2 = 'fake-action-uuid2'
+        requested = "fake-instance-uuid"
+        uuid1 = "fake-action-uuid1"
+        uuid2 = "fake-action-uuid2"
         utils.create_test_reaper_action(
-            uuid=uuid1, requested_instances=[requested])
+            uuid=uuid1, requested_instances=[requested]
+        )
         utils.create_test_reaper_action(
-            uuid=uuid2, requested_instances=[requested])
+            uuid=uuid2, requested_instances=[requested]
+        )
         results = ra.ReaperAction.get_by_instance_uuid(requested)
         result_uuids = [res.uuid for res in results]
         self.assertIn(uuid1, result_uuids)
@@ -72,18 +79,21 @@ class ReaperActionTests(base.DbTestCase):
         self.assertEqual(2, len(result_uuids))
 
     def test_reaper_action_get_by_victim(self):
-        victim = 'fake-victim-uuid'
+        victim = "fake-victim-uuid"
         act = utils.create_test_reaper_action(victims=[victim])
         results = ra.ReaperAction.get_by_victim_uuid(victim)
         for result in results:
             self.assertEqual(act.uuid, result.uuid)
 
     def test_reaper_action_get_by_uuid_not_found(self):
-        self.assertRaises(exception.ReaperActionNotFound,
-                          ra.ReaperAction.get_by_uuid, 'not-existing')
+        self.assertRaises(
+            exception.ReaperActionNotFound,
+            ra.ReaperAction.get_by_uuid,
+            "not-existing",
+        )
 
     def test_reaper_action_get_by_instance_uuid_not_found(self):
-        self.assertEqual([], ra.ReaperAction.get_by_instance_uuid('not-there'))
+        self.assertEqual([], ra.ReaperAction.get_by_instance_uuid("not-there"))
 
     def test_reaper_action_get_by_victim_not_found(self):
-        self.assertEqual([], ra.ReaperAction.get_by_victim_uuid('not-there'))
+        self.assertEqual([], ra.ReaperAction.get_by_victim_uuid("not-there"))

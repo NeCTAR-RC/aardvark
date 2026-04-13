@@ -1,7 +1,2 @@
 [run]
-branch = True
-source = aardvark
 omit = aardvark/tests/*
-
-[report]
-ignore_errors = True

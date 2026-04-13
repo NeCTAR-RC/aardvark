@@ -24,16 +24,21 @@ CONF = aardvark.conf.CONF
 
 def _get_keystone_client():
     auth_plugin = keystone_loading.load_auth_from_conf_options(
-        CONF, 'identity')
+        CONF, "identity"
+    )
     session = keystone_loading.load_session_from_conf_options(
-        CONF, 'identity', auth=auth_plugin)
-    return client.Client(session=session,
-                         region_name=CONF.identity.region_name)
+        CONF, "identity", auth=auth_plugin
+    )
+    return client.Client(
+        session=session, region_name=CONF.identity.region_name
+    )
 
 
 def get_preemptible_projects():
     client = _get_keystone_client()
     from aardvark.objects import project as pr_obj
-    return [pr_obj.Project(project.id, project.name, True)
-            for project in client.projects.list(
-                    enabled=True, tags=['preemptible'])]
+
+    return [
+        pr_obj.Project(project.id, project.name, True)
+        for project in client.projects.list(enabled=True, tags=["preemptible"])
+    ]

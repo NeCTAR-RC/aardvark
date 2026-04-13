@@ -18,14 +18,12 @@ from aardvark.tests.unit.reaper.strategies import test_strict_strategy as base
 
 
 class StrictTimeStrategyTests(base.StrictStrategyTests):
-
     def setUp(self):
-        super(StrictTimeStrategyTests, self).setUp()
+        super().setUp()
         self.strategy = strict_time.StrictTimeStrategy(watermark_mode=False)
 
 
 class StrictTimeStrategyWatermarkTests(base.StrictStrategyWatermarkModeTests):
-
     def setUp(self):
-        super(StrictTimeStrategyWatermarkTests, self).setUp()
+        super().setUp()
         self.strategy = strict_time.StrictTimeStrategy(watermark_mode=True)

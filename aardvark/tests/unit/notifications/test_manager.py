@@ -21,9 +21,8 @@ from aardvark.notifications import manager
 
 
 class ManagerTests(base.TestCase):
-
     def setUp(self):
-        super(ManagerTests, self).setUp()
+        super().setUp()
         self.manager = manager.ListenerManager()
 
     def _create_mocked_listeners(self, num):
@@ -38,7 +37,7 @@ class ManagerTests(base.TestCase):
 
     def test_manager(self):
         mocked_listeners = self._create_mocked_listeners(2)
-        with mock.patch.object(self.manager, '_get_listeners') as mocked:
+        with mock.patch.object(self.manager, "_get_listeners") as mocked:
             mocked.return_value = mocked_listeners
             self.manager.start()
             self.assertEqual(mocked_listeners, self.manager.listeners)

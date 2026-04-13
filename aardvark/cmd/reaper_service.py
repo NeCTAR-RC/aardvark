@@ -36,9 +36,10 @@ def main():
     # Importing after the config is parsed in order to correctly pass
     # the config option to all decorators
     from aardvark.services import reaper_service
+
     reaper = reaper_service.ReaperService()
 
-    launcher = service.launch(CONF, reaper, restart_method='mutate')
+    launcher = service.launch(CONF, reaper, restart_method="mutate")
     launcher.wait()
 
 
@@ -54,4 +55,4 @@ def prepare_service(argv=None):
     argv = argv or []
     config.parse_args(argv)
 
-    log.setup(CONF, 'aardvark-reaper')
+    log.setup(CONF, "aardvark-reaper")

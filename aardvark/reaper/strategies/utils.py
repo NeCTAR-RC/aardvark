@@ -27,7 +27,8 @@ CONF = aardvark.conf.CONF
 
 
 Combination = collections.namedtuple(
-    "Combination", "provider instances leftovers")
+    "Combination", "provider instances leftovers"
+)
 
 
 def sum_resources(x):
@@ -39,18 +40,23 @@ def sum_resources(x):
 
 def sort_combinations(combinations):
     """Sorts the found combinations of servers"""
-    resources = sorted([
-        ("VCPU", CONF.reaper.vcpu_sorting_priority),
-        ("MEMORY_MB", CONF.reaper.ram_sorting_priority),
-        ("DISK_GB", CONF.reaper.disk_sorting_priority)
-    ], key=lambda x: x[1])
+    resources = sorted(
+        [
+            ("VCPU", CONF.reaper.vcpu_sorting_priority),
+            ("MEMORY_MB", CONF.reaper.ram_sorting_priority),
+            ("DISK_GB", CONF.reaper.disk_sorting_priority),
+        ],
+        key=lambda x: x[1],
+    )
 
     for resource, _ in resources:
         combinations = sorted(
-            combinations, key=lambda x: getattr(x.leftovers, resource, 0))
+            combinations, key=lambda x: getattr(x.leftovers, resource, 0)
+        )
         minimum_value = getattr(combinations[0].leftovers, resource, 0)
         combinations = [
-            combo for combo in combinations
+            combo
+            for combo in combinations
             if getattr(combo.leftovers, resource, 0) == minimum_value
         ]
         if len(combinations) == 1:
