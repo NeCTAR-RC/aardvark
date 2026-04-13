@@ -17,7 +17,7 @@
 import abc
 
 
-class BaseNotifier(object, metaclass=abc.ABCMeta):
+class BaseNotifier(metaclass=abc.ABCMeta):
     """The base class for notifiers
 
     This is the class where all the aardvark notifiers will inherit from

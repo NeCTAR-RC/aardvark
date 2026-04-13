@@ -24,8 +24,9 @@ LOG = logging.getLogger(__name__)
 
 class LogNotifier(base.BaseNotifier):
     """Creates a log message when called to notify for an instance"""
+
     def __init__(self):
-        super(LogNotifier, self).__init__()
+        super().__init__()
 
     def notify_about_instance(self, instance):
         LOG.info("Preemptible instance %s was deleted.", instance.uuid)
@@ -40,40 +41,74 @@ class LogNotifier(base.BaseNotifier):
 
     def _notify_about_reaper_request(self, action):
         if action.state in (ra.ActionState.FAILED, ra.ActionState.CANCELED):
-            LOG.error("Reaper request %s, state: %s, requested instances: %s, "
-                      "event: %s, fault reason: %s", action.uuid,
-                      action.state.value.lower(), action.requested_instances,
-                      action.event.value.lower(), action.fault_reason)
+            LOG.error(
+                "Reaper request %s, state: %s, requested instances: %s, "
+                "event: %s, fault reason: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.requested_instances,
+                action.event.value.lower(),
+                action.fault_reason,
+            )
         elif action.state == ra.ActionState.SUCCESS:
-            LOG.info("Reaper request %s, state: %s, requested instances: %s, "
-                     "event: %s, victims: %s", action.uuid,
-                     action.state.value.lower(), action.requested_instances,
-                     action.event.value.lower(), action.victims)
+            LOG.info(
+                "Reaper request %s, state: %s, requested instances: %s, "
+                "event: %s, victims: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.requested_instances,
+                action.event.value.lower(),
+                action.victims,
+            )
         else:
-            LOG.info("Reaper request %s, state: %s, requested instances: %s, "
-                     "event: %s", action.uuid, action.state.value.lower(),
-                     action.requested_instances, action.event.value.lower())
+            LOG.info(
+                "Reaper request %s, state: %s, requested instances: %s, event: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.requested_instances,
+                action.event.value.lower(),
+            )
 
     def _notify_about_state_calculation(self, action):
         if action.state in (ra.ActionState.FAILED, ra.ActionState.CANCELED):
-            LOG.error("State calculation %s, state: %s, fault reason: %s",
-                      action.uuid, action.state.value.lower(),
-                      action.fault_reason)
+            LOG.error(
+                "State calculation %s, state: %s, fault reason: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.fault_reason,
+            )
         elif action.state == ra.ActionState.SUCCESS:
-            LOG.info("State calculation %s, state: %s, victims: %s",
-                     action.uuid, action.state.value.lower(), action.victims)
+            LOG.info(
+                "State calculation %s, state: %s, victims: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.victims,
+            )
         else:
-            LOG.info("State calculation %s, state: %s", action.uuid,
-                     action.state.value.lower())
+            LOG.info(
+                "State calculation %s, state: %s",
+                action.uuid,
+                action.state.value.lower(),
+            )
 
     def _notify_about_killer_request(self, action):
         if action.state in (ra.ActionState.FAILED, ra.ActionState.CANCELED):
-            LOG.error("Killer request %s, state: %s, fault reason: %s",
-                      action.uuid, action.state.value.lower(),
-                      action.fault_reason)
+            LOG.error(
+                "Killer request %s, state: %s, fault reason: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.fault_reason,
+            )
         elif action.state == ra.ActionState.SUCCESS:
-            LOG.info("Killer request %s, state: %s, victims: %s",
-                     action.uuid, action.state.value.lower(), action.victims)
+            LOG.info(
+                "Killer request %s, state: %s, victims: %s",
+                action.uuid,
+                action.state.value.lower(),
+                action.victims,
+            )
         else:
-            LOG.info("Killer request %s, state: %s", action.uuid,
-                     action.state.value.lower())
+            LOG.info(
+                "Killer request %s, state: %s",
+                action.uuid,
+                action.state.value.lower(),
+            )

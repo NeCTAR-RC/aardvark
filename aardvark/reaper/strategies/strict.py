@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from __future__ import division
 import itertools
 
 from oslo_log import log as logging
@@ -29,12 +28,12 @@ CONF = aardvark.conf.CONF
 
 
 class StrictStrategy(strategy.ReaperStrategy):
-
     def __init__(self, watermark_mode):
-        super(StrictStrategy, self).__init__(watermark_mode=watermark_mode)
+        super().__init__(watermark_mode=watermark_mode)
 
-    def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects, flavors=None):
+    def get_preemptible_servers(
+        self, requested, hosts, num_instances, projects, flavors=None
+    ):
         selected = list()
         selected_hosts = list()
 
@@ -42,15 +41,15 @@ class StrictStrategy(strategy.ReaperStrategy):
         max_allocs = num_instances * CONF.reaper.alternatives
 
         for i in range(0, max_allocs):
-
             # Find all the matching flavor combinations and order them
-            combo = self.find_matching_server_combinations(hosts, requested,
-                                                           projects)
+            combo = self.find_matching_server_combinations(
+                hosts, requested, projects
+            )
 
             if not combo:
                 # If we run out of combos before the max retries break and
                 # check if we have enough spots reserved.
-                LOG.debug('No combo returned.')
+                LOG.debug("No combo returned.")
                 break
 
             host = combo.provider
@@ -62,14 +61,19 @@ class StrictStrategy(strategy.ReaperStrategy):
                 resources = utils.sum_resources(combo.instances)
                 host.used_resources -= resources - requested
                 host.preemptible_servers = [
-                    pr_server for pr_server in host.preemptible_servers
-                    if pr_server not in combo.instances]
+                    pr_server
+                    for pr_server in host.preemptible_servers
+                    if pr_server not in combo.instances
+                ]
 
             if host not in selected_hosts:
                 selected_hosts.append(host)
             selected += combo.instances
-            LOG.debug('List of instances: %s from host: %s selected',
-                      combo.instances, combo.provider.name)
+            LOG.debug(
+                "List of instances: %s from host: %s selected",
+                combo.instances,
+                combo.provider.name,
+            )
 
         if not self.watermark_mode:
             # Watermark mode is best effort. So skip this check in this
@@ -97,8 +101,9 @@ class StrictStrategy(strategy.ReaperStrategy):
             valid = []
             for host in hosts:
                 if host.disabled:
-                    LOG.info("Skipping host %s because it is disabled",
-                             host.name)
+                    LOG.info(
+                        "Skipping host %s because it is disabled", host.name
+                    )
                     continue
                 self.populate_host(host, projects)
                 valid.append(host)
@@ -107,39 +112,53 @@ class StrictStrategy(strategy.ReaperStrategy):
         valid = [h for h in populate_hosts(hosts)]
 
         for host in valid:
-            LOG.debug("Checing host %s", host.name)
+            LOG.debug("Checking host %s", host.name)
             # NOTE(ttsiouts): If free space is enough for the new server
             # then we should not delete any of the existing servers
-            LOG.debug('Requested: %s, Free: %s',
-                      requested, host.free_resources)
+            LOG.debug(
+                "Requested: %s, Free: %s", requested, host.free_resources
+            )
             if requested <= host.free_resources:
-                LOG.debug('Free resources enough. Requested: %s, Free: %s',
-                          requested, host.free_resources)
+                LOG.debug(
+                    "Free resources enough. Requested: %s, Free: %s",
+                    requested,
+                    host.free_resources,
+                )
                 leftovers = host.free_resources - requested
-                combinations.append(utils.Combination(provider=host,
-                                                      leftovers=leftovers,
-                                                      instances=[]))
+                combinations.append(
+                    utils.Combination(
+                        provider=host, leftovers=leftovers, instances=[]
+                    )
+                )
                 only_free = True
                 continue
 
             preemptible = self.filter_servers(host, requested)
-            LOG.debug('Preemptibles: %s', preemptible)
+            LOG.debug("Preemptibles: %s", preemptible)
             end = len(preemptible) + 1
             for num in range(1, end):
                 num_combinations = itertools.combinations(preemptible, num)
                 for combo in num_combinations:
                     resources = (
-                        utils.sum_resources(combo) + host.free_resources)
+                        utils.sum_resources(combo) + host.free_resources
+                    )
                     if requested <= resources:
                         instances = [x for x in combo]
                         leftovers = resources - requested
                         combinations.append(
-                            utils.Combination(provider=host,
-                                              leftovers=leftovers,
-                                              instances=instances))
+                            utils.Combination(
+                                provider=host,
+                                leftovers=leftovers,
+                                instances=instances,
+                            )
+                        )
                     else:
-                        LOG.debug("Requested: %s resources: %s. combo %s, not "
-                                  "selected", requested, resources, combo)
+                        LOG.debug(
+                            "Requested: %s resources: %s. combo %s, not selected",
+                            requested,
+                            resources,
+                            combo,
+                        )
 
         if not combinations:
             return None

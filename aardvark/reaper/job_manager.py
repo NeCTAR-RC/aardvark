@@ -26,8 +26,7 @@ LOG = logging.getLogger(__name__)
 CONF = aardvark.conf.CONF
 
 
-class JobManager(object):
-
+class JobManager:
     board_name = "ReaperBoard"
 
     def __init__(self):
@@ -59,9 +58,9 @@ class JobManager(object):
 
     def multithreaded_handling(self, request):
         backend_conf = {
-            'board': CONF.reaper.job_backend,
-            'path': "/var/lib/%s" % CONF.reaper.job_backend,
-            'host': CONF.reaper.backend_host
+            "board": CONF.reaper.job_backend,
+            "path": f"/var/lib/{CONF.reaper.job_backend}",
+            "host": CONF.reaper.backend_host,
         }
 
         with backends.backend(self.board_name, backend_conf.copy()) as board:
@@ -74,8 +73,9 @@ class JobManager(object):
         requested = set(request.aggregates)
         common = list(watched & requested)
         if len(common) == 0 and len(request.aggregates) != 0:
-            LOG.error('Request for not watched aggregates %s',
-                      request.aggregates)
+            LOG.error(
+                "Request for not watched aggregates %s", request.aggregates
+            )
             raise exception.UnwatchedAggregate()
         request.aggregates = list(common)
         return

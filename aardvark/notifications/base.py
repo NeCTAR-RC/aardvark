@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 CONF = aardvark.conf.CONF
 
 
-class NotificationEndpoint(object):
+class NotificationEndpoint:
     """Base Endpoint for plugins that support the notification API."""
 
     event_types = []
@@ -36,10 +36,11 @@ class NotificationEndpoint(object):
     """List of strings to filter messages on."""
 
     def __init__(self):
-        super(NotificationEndpoint, self).__init__()
+        super().__init__()
         if self.event_types:
             self.filter_rule = oslo_messaging.NotificationFilter(
-                event_type='|'.join(self.event_types))
+                event_type="|".join(self.event_types)
+            )
 
     def _default_action(self, *args, **kwargs):
         if CONF.notification.default_action == "requeue":
@@ -70,7 +71,7 @@ class NotificationEndpoint(object):
     def _reset_instances(self, uuids):
         for uuid in uuids:
             try:
-                LOG.info('Trying to reset server %s to error', uuid)
+                LOG.info("Trying to reset server %s to error", uuid)
                 nova.server_reset_state(uuid)
             except n_exc.NotFound:
                 # Looks like we were late, and the server is deleted.
@@ -88,4 +89,4 @@ class NotificationEvent(base.PersistentObject):
     """
 
     def __init__(self):
-        super(NotificationEvent, self).__init__()
+        super().__init__()

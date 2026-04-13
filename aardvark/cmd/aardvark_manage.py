@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from __future__ import print_function
 
 import argparse
 import enum
@@ -26,18 +25,16 @@ from aardvark.reaper import reaper_action as ra
 CONF = cfg.CONF
 
 
-class ReaperActions(object):
-
-    allowed_actions = ['list', 'show']
+class ReaperActions:
+    allowed_actions = ["list", "show"]
 
     @staticmethod
     def list(requested=None, victim=None):
-
-        field_names = ['Started At', 'UUID', 'State', 'Event']
+        field_names = ["Started At", "UUID", "State", "Event"]
 
         if requested:
             if victim:
-                print("NOTE: \"victim\" param will not be used")
+                print('NOTE: "victim" param will not be used')
             reaper_actions = ra.ReaperAction.get_by_instance_uuid(requested)
         elif victim:
             reaper_actions = ra.ReaperAction.get_by_victim_uuid(victim)
@@ -46,29 +43,40 @@ class ReaperActions(object):
 
         t = prettytable.PrettyTable(field_names)
         for action in reaper_actions:
-            fields = [action.created_at, action.uuid, action.state.value,
-                      action.event.value]
+            fields = [
+                action.created_at,
+                action.uuid,
+                action.state.value,
+                action.event.value,
+            ]
             t.add_row(fields)
         print(t)
 
     @staticmethod
     def show(uuid):
-        field_names = ['Property', 'Value']
+        field_names = ["Property", "Value"]
         action = ra.ReaperAction.get_by_uuid(uuid)
-        fields = ['Created At', 'Updated At', 'UUID', 'State',
-                  'Requested Instances', 'Victims', 'Event']
+        fields = [
+            "Created At",
+            "Updated At",
+            "UUID",
+            "State",
+            "Requested Instances",
+            "Victims",
+            "Event",
+        ]
 
         if action.state in (ra.ActionState.FAILED, ra.ActionState.CANCELED):
-            fields.append('Fault Reason')
+            fields.append("Fault Reason")
 
         t = prettytable.PrettyTable(field_names)
-        t.align = 'l'
+        t.align = "l"
 
         for field in fields:
-            prop = field.lower().replace(' ', '_')
+            prop = field.lower().replace(" ", "_")
             value = getattr(action, prop, None)
             if isinstance(value, list):
-                value = ', '.join(value)
+                value = ", ".join(value)
             if isinstance(value, enum.Enum):
                 value = value.value
             row = [field, value]
@@ -76,38 +84,38 @@ class ReaperActions(object):
         print(t)
 
 
-handlers = {
-    'reaper_action': ReaperActions
-}
+handlers = {"reaper_action": ReaperActions}
 
 
 def add_command_parsers(subparsers):
     # TODO(ttsiouts): Implement a maintainable framework
-    parser = subparsers.add_parser('reaper_action')
-    sub = parser.add_subparsers(dest='action')
-    pa = sub.add_parser('list')
-    pa.add_argument('--requested', metavar='<requested>', dest='requested')
-    pa.add_argument('--victim')
+    parser = subparsers.add_parser("reaper_action")
+    sub = parser.add_subparsers(dest="action")
+    pa = sub.add_parser("list")
+    pa.add_argument("--requested", metavar="<requested>", dest="requested")
+    pa.add_argument("--victim")
     pa.set_defaults(action_fn=ReaperActions.list)
-    pa.set_defaults(action_kwargs=['requested', 'victim'])
-    pa.add_argument('action_args', nargs='*', help=argparse.SUPPRESS)
+    pa.set_defaults(action_kwargs=["requested", "victim"])
+    pa.add_argument("action_args", nargs="*", help=argparse.SUPPRESS)
 
-    pa = sub.add_parser('show')
-    pa.add_argument('--uuid', metavar='<uuid>', dest='uuid')
+    pa = sub.add_parser("show")
+    pa.add_argument("--uuid", metavar="<uuid>", dest="uuid")
     pa.set_defaults(action_fn=ReaperActions.show)
-    pa.set_defaults(action_kwargs=['uuid'])
-    pa.add_argument('action_args', nargs='*', help=argparse.SUPPRESS)
+    pa.set_defaults(action_kwargs=["uuid"])
+    pa.add_argument("action_args", nargs="*", help=argparse.SUPPRESS)
 
 
-category = cfg.SubCommandOpt('category',
-                             title='Command categories',
-                             help='Available categories',
-                             handler=add_command_parsers)
+category = cfg.SubCommandOpt(
+    "category",
+    title="Command categories",
+    help="Available categories",
+    handler=add_command_parsers,
+)
 
 
 def main():
     CONF.register_cli_opts([category])
-    CONF(project='aardvark')
+    CONF(project="aardvark")
     kwargs = {}
     for kwarg in CONF.category.action_kwargs:
         kwargs[kwarg] = getattr(CONF.category, kwarg)

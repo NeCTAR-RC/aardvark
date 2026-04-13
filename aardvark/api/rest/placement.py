@@ -26,23 +26,27 @@ CONF = aardvark.conf.CONF
 def exception_map(f):
     """Catches keystone exceptions
 
-    Wraper that tries to catch excetpions from keystone and map them to
+    Wrapper that tries to catch exceptions from keystone and map them to
     aardvark equivalents.
     """
+
     def wrapper(self, *a, **k):
         try:
             return f(self, *a, **k)
         except keystone_exc.NotFound:
             # TODO(ttsiouts): map the exceptions
             return None
+
     return wrapper
 
 
-class PlacementClient(object):
+class PlacementClient:
     """Client class for querying Placement API"""
 
-    keystone_filter = {'service_type': 'placement',
-                       'region_name': CONF.placement.region_name}
+    keystone_filter = {
+        "service_type": "placement",
+        "region_name": CONF.placement.region_name,
+    }
 
     def __init__(self):
         self.client = self._create_client()
@@ -50,15 +54,18 @@ class PlacementClient(object):
     def _create_client(self):
         """Creates the client to Placement API"""
         auth_plugin = keystone_loading.load_auth_from_conf_options(
-            CONF, 'placement')
+            CONF, "placement"
+        )
         client = keystone_loading.load_session_from_conf_options(
-            CONF, 'placement', auth=auth_plugin)
-        client.additional_headers = {'accept': 'application/json'}
+            CONF, "placement", auth=auth_plugin
+        )
+        client.additional_headers = {"accept": "application/json"}
         return client
 
-    def _get(self, url, obj=None, version='1.17', **kwargs):
-        response = self.client.get(url, endpoint_filter=self.keystone_filter,
-                                   microversion=version)
+    def _get(self, url, obj=None, version="1.17", **kwargs):
+        response = self.client.get(
+            url, endpoint_filter=self.keystone_filter, microversion=version
+        )
         return response.json()
 
     @exception_map
@@ -70,11 +77,11 @@ class PlacementClient(object):
         """
         filter_str = ""
         if aggregates:
-            filter_str = "?member_of=in:" + ','.join(aggregates)
-        url = '/resource_providers%s' % filter_str
+            filter_str = "?member_of=in:" + ",".join(aggregates)
+        url = f"/resource_providers{filter_str}"
         resource_providers = self._get(url)
-        random.shuffle(resource_providers['resource_providers'])
-        return resource_providers['resource_providers']
+        random.shuffle(resource_providers["resource_providers"])
+        return resource_providers["resource_providers"]
 
     @exception_map
     def usages(self, resource_provider):
@@ -82,9 +89,9 @@ class PlacementClient(object):
 
         :param resource_provider: the provider to search for
         """
-        url = "/resource_providers/%s/usages" % resource_provider
+        url = f"/resource_providers/{resource_provider}/usages"
         response = self._get(url)
-        return response['usages']
+        return response["usages"]
 
     @exception_map
     def inventory(self, resource_provider_uuid, resource_class):
@@ -93,8 +100,7 @@ class PlacementClient(object):
         :param filters: A dictionary of filters to be passes to Placement API
                         If None, returns all the RPs in the system
         """
-        url = '/resource_providers/%s/inventories/%s' % (
-            resource_provider_uuid, resource_class)
+        url = f"/resource_providers/{resource_provider_uuid}/inventories/{resource_class}"
         response = self._get(url)
         return response
 
@@ -105,15 +111,15 @@ class PlacementClient(object):
         :param filters: A dictionary of filters to be passes to Placement API
                         If None, returns all the RPs in the system
         """
-        url = '/resource_providers/%s/inventories' % resource_provider_uuid
+        url = f"/resource_providers/{resource_provider_uuid}/inventories"
         response = self._get(url)
-        return response['inventories']
+        return response["inventories"]
 
     @exception_map
     def resource_classes(self):
-        url = '/resource_classes'
+        url = "/resource_classes"
         resource_classes = self._get(url)
-        return resource_classes['resource_classes']
+        return resource_classes["resource_classes"]
 
     @exception_map
     def all_inventories(self):
@@ -122,7 +128,7 @@ class PlacementClient(object):
         : param filters: A dictionary of filters to be passes to Placement API
                          If None, returns all the RPs in the system
         """
-        url = '/resource_providers/inventories'
+        url = "/resource_providers/inventories"
         inventories = self._get(url)
         return inventories
 
@@ -132,11 +138,11 @@ class PlacementClient(object):
 
         :param resource_provider: the provider to search for
         """
-        url = "/usages?project_id=%s" % project_id
+        url = f"/usages?project_id={project_id}"
         if user_id is not None:
-            url += "&user_id=%s" % user_id
+            url += f"&user_id={user_id}"
         response = self._get(url)
-        return response['usages']
+        return response["usages"]
 
     @exception_map
     def traits(self):
@@ -146,7 +152,7 @@ class PlacementClient(object):
         """
         url = "/traits"
         response = self._get(url)
-        return response['traits']
+        return response["traits"]
 
     @exception_map
     def get_allocations(self, consumer):
@@ -154,5 +160,5 @@ class PlacementClient(object):
 
         :param consumer: the consumer id to get the allocations for
         """
-        url = '/allocations/%s' % consumer
+        url = f"/allocations/{consumer}"
         return self._get(url)

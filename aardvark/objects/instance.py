@@ -30,17 +30,18 @@ CONF = aardvark.conf.CONF
 
 
 class Instance(base.BaseObject):
-
-    def __init__(self, uuid, name, flavor, user_id, metadata, image, created,
-                 rp_uuid):
-        super(Instance, self).__init__(uuid, name, flavor, user_id, metadata,
-                                       image, created, rp_uuid)
+    def __init__(
+        self, uuid, name, flavor, user_id, metadata, image, created, rp_uuid
+    ):
+        super().__init__(
+            uuid, name, flavor, user_id, metadata, image, created, rp_uuid
+        )
         self.uuid = uuid
         self.name = name
         self.flavor = flavor
         self.user_id = user_id
         self.metadata = metadata
-        self.image = None if image == '' else image
+        self.image = None if image == "" else image
         self.rp_uuid = rp_uuid
         self._resources = None
         self.created = created
@@ -58,12 +59,13 @@ class Instance(base.BaseObject):
         return placement.get_consumer_allocations(self.uuid, self.rp_uuid)
 
     def _resources_from_flavor(self):
-        return resources.Resources.obj_from_flavor(self.flavor,
-                                                   is_bfv=self.is_bfv)
+        return resources.Resources.obj_from_flavor(
+            self.flavor, is_bfv=self.is_bfv
+        )
 
     @property
     def owner(self):
-        return self.metadata.get('landb-responsible', self.user_id)
+        return self.metadata.get("landb-responsible", self.user_id)
 
     @property
     def is_bfv(self):
@@ -72,25 +74,33 @@ class Instance(base.BaseObject):
         return self.image is None
 
     def __repr__(self):
-        return '<Instance(uuid: %s)>' % (self.uuid)
+        return f"<Instance(uuid: {self.uuid})>"
 
 
 class InstanceList(base.BaseObject):
-
     def __init__(self):
-        super(InstanceList, self).__init__()
+        super().__init__()
 
     def instances(self, rp_uuid=None, **filters):
-        if 'flavor' in filters or 'project_id' in filters:
-            filters.update({'all_tenants': True})
-        if 'sort_dir' not in filters:
-            filters['sort_dir'] = 'asc'
-        if 'sort_key' not in filters:
-            filters['sort_key'] = 'created_at'
-        return [Instance(server.id, server.name, server.flavor, server.user_id,
-                         server.metadata, server.image, server.created,
-                         rp_uuid)
-                for server in nova.server_list(**filters)]
+        if "flavor" in filters or "project_id" in filters:
+            filters.update({"all_tenants": True})
+        if "sort_dir" not in filters:
+            filters["sort_dir"] = "asc"
+        if "sort_key" not in filters:
+            filters["sort_key"] = "created_at"
+        return [
+            Instance(
+                server.id,
+                server.name,
+                server.flavor,
+                server.user_id,
+                server.metadata,
+                server.image,
+                server.created,
+                rp_uuid,
+            )
+            for server in nova.server_list(**filters)
+        ]
 
     def sorted_instances(self, rp_uuid, **filters):
         return self._sort_instances(self.instances(rp_uuid, **filters))
@@ -117,7 +127,7 @@ class InstanceList(base.BaseObject):
         elif index == len(instances) - 1:
             instances = [instances[index]] + instances[:index]
         elif index < len(instances):
-            quick_kill = [x for x in reversed(instances[index - 1:])]
-            instances = quick_kill + instances[:index - 1]
-        LOG.debug('order now is: %s', ', '.join([x.name for x in instances]))
+            quick_kill = [x for x in reversed(instances[index - 1 :])]
+            instances = quick_kill + instances[: index - 1]
+        LOG.debug("order now is: %s", ", ".join([x.name for x in instances]))
         return instances

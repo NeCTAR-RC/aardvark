@@ -25,32 +25,30 @@ CONF = aardvark.conf.CONF
 
 
 class UtilsTests(base.TestCase):
-
     def setUp(self):
-        super(UtilsTests, self).setUp()
+        super().setUp()
 
     def test_retries(self):
-        mocked_method = mock.Mock(__name__="mocked",
-                                  side_effect=exception.RetryException())
-        decorated_mocked_method = utils.retries(
-            exception.AardvarkException)(mocked_method)
+        mocked_method = mock.Mock(
+            __name__="mocked", side_effect=exception.RetryException()
+        )
+        decorated_mocked_method = utils.retries(exception.AardvarkException)(
+            mocked_method
+        )
         self.assertRaises(exception.AardvarkException, decorated_mocked_method)
         self.assertEqual(mocked_method.call_count, 3)
 
     def test_retries_no_side_effect(self):
-        mocked_method = mock.Mock(__name__="mocked",
-                                  side_effect=exception.RetryException())
+        mocked_method = mock.Mock(
+            __name__="mocked", side_effect=exception.RetryException()
+        )
         decorated_mocked_method = utils.retries()(mocked_method)
         decorated_mocked_method()
         self.assertEqual(mocked_method.call_count, 3)
 
-    @mock.patch('aardvark.api.nova.aggregate_list')
+    @mock.patch("aardvark.api.nova.aggregate_list")
     def test_map_aggregate_names(self, mock_agg_list):
-
-        aggregates = [
-            mock.Mock(uuid="agg1_uuid"),
-            mock.Mock(uuid="agg2_uuid")
-        ]
+        aggregates = [mock.Mock(uuid="agg1_uuid"), mock.Mock(uuid="agg2_uuid")]
         aggregates[0].name = "agg1"
         aggregates[1].name = "agg2"
         CONF.reaper.watched_aggregates = ["agg1", "agg2"]
@@ -59,23 +57,19 @@ class UtilsTests(base.TestCase):
         uuids = utils.map_aggregate_names()
         self.assertEqual([["agg1_uuid"], ["agg2_uuid"]], uuids)
 
-    @mock.patch('aardvark.api.nova.aggregate_list')
+    @mock.patch("aardvark.api.nova.aggregate_list")
     def test_map_aggregate_names_bad_config(self, mock_agg_list):
-
-        aggregates = [
-            mock.Mock(uuid="agg1_uuid"),
-            mock.Mock(uuid="agg2_uuid")
-        ]
+        aggregates = [mock.Mock(uuid="agg1_uuid"), mock.Mock(uuid="agg2_uuid")]
         aggregates[0].name = "agg1"
         aggregates[1].name = "agg2"
         CONF.reaper.watched_aggregates = ["agg3"]
         mock_agg_list.return_value = aggregates
 
-        self.assertRaises(exception.BadConfigException,
-                          utils.map_aggregate_names)
+        self.assertRaises(
+            exception.BadConfigException, utils.map_aggregate_names
+        )
 
     def test_workload_split(self):
-
         def assert_gen(expected, actual):
             for exp, act in zip(expected, actual):
                 self.assertEqual(exp, tuple(act))
@@ -83,8 +77,21 @@ class UtilsTests(base.TestCase):
 
         load = range(1, 14)
         num_workers = 15
-        expected = [(1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,),
-                    (10,), (11,), (12,), (13,)]
+        expected = [
+            (1,),
+            (2,),
+            (3,),
+            (4,),
+            (5,),
+            (6,),
+            (7,),
+            (8,),
+            (9,),
+            (10,),
+            (11,),
+            (12,),
+            (13,),
+        ]
         assert_gen(expected, utils.split_workload(num_workers, load))
 
         load = range(1, 5)

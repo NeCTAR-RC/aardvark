@@ -16,7 +16,7 @@
 from aardvark.objects import resources
 
 
-class Capabilities(object):
+class Capabilities:
     """Representation of the capabilities of a resource_provider
 
     Just a helper class that enables the reaper to make simple calculations
@@ -43,8 +43,9 @@ class Capabilities(object):
     def get_excessive_resources(self, limit):
         excessive = self.used - self.total * (limit / 100.0)
         _dict = excessive.to_dict()
-        return resources.Resources({rc: val
-                                    for rc, val in _dict.items() if val > 0})
+        return resources.Resources(
+            {rc: val for rc, val in _dict.items() if val > 0}
+        )
 
     def __repr__(self):
-        return '<Capabilities(used: %s, total: %s)>' % (self.used, self.total)
+        return f"<Capabilities(used: {self.used}, total: {self.total})>"

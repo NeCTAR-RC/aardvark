@@ -23,15 +23,18 @@ CONF = aardvark.conf.CONF
 
 
 def _get_cinder_client():
-    auth_plugin = keystone_loading.load_auth_from_conf_options(
-        CONF, 'cinder')
+    auth_plugin = keystone_loading.load_auth_from_conf_options(CONF, "cinder")
     session = keystone_loading.load_session_from_conf_options(
-        CONF, 'cinder', auth=auth_plugin)
-    return client.Client(CONF.cinder.client_version, session=session,
-                         region_name=CONF.cinder.region_name)
+        CONF, "cinder", auth=auth_plugin
+    )
+    return client.Client(
+        CONF.cinder.client_version,
+        session=session,
+        region_name=CONF.cinder.region_name,
+    )
 
 
 def get_image_from_volume(volume_id):
     client = _get_cinder_client()
     volume = client.volumes.get(volume_id)
-    return volume.volume_image_metadata['image_id']
+    return volume.volume_image_metadata["image_id"]

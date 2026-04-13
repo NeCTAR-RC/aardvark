@@ -18,9 +18,8 @@ from aardvark.tests import base
 
 
 class PlacementTests(base.TestCase):
-
     def setUp(self):
-        super(PlacementTests, self).setUp()
+        super().setUp()
         self.client = placement.PlacementClient()
 
     def test_basic(self):

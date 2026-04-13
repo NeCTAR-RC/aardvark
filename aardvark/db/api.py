@@ -19,9 +19,10 @@ from oslo_config import cfg
 from oslo_db import api as db_api
 
 
-_BACKEND_MAPPING = {'sqlalchemy': 'aardvark.db.sqlalchemy.api'}
-IMPL = db_api.DBAPI.from_config(cfg.CONF, backend_mapping=_BACKEND_MAPPING,
-                                lazy=True)
+_BACKEND_MAPPING = {"sqlalchemy": "aardvark.db.sqlalchemy.api"}
+IMPL = db_api.DBAPI.from_config(
+    cfg.CONF, backend_mapping=_BACKEND_MAPPING, lazy=True
+)
 
 
 def get_instance():
@@ -29,12 +30,12 @@ def get_instance():
     return IMPL
 
 
-class Connection(object, metaclass=abc.ABCMeta):
+class Connection(metaclass=abc.ABCMeta):
     """Base class for storage connections."""
 
     @abc.abstractmethod
     def __init__(self):
-        """Contructor."""
+        """Constructor."""
 
     @abc.abstractmethod
     def create_scheduling_event(self, values):
@@ -61,8 +62,9 @@ class Connection(object, metaclass=abc.ABCMeta):
         """List the instance scheduling events given the uuid of an event"""
 
     @abc.abstractmethod
-    def update_instance_scheduling_event(self, scheduling_event_uuid, values,
-                                         instance_uuid=None):
+    def update_instance_scheduling_event(
+        self, scheduling_event_uuid, values, instance_uuid=None
+    ):
         """Update an instance scheduling event"""
 
     @abc.abstractmethod
@@ -82,8 +84,9 @@ class Connection(object, metaclass=abc.ABCMeta):
         """Get a state_update_event based on the uuid"""
 
     @abc.abstractmethod
-    def update_instance_state_update_event(self, event_uuid, instance_uuid,
-                                           values):
+    def update_instance_state_update_event(
+        self, event_uuid, instance_uuid, values
+    ):
         """Update a state update event"""
 
     @abc.abstractmethod

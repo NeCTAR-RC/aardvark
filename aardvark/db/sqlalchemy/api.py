@@ -51,7 +51,7 @@ def get_backend():
 
 
 def model_query(model, *args, **kwargs):
-    session = kwargs.get('session') or get_session()
+    session = kwargs.get("session") or get_session()
     query = session.query(model, *args)
     return query
 
@@ -63,8 +63,8 @@ class Connection(api.Connection):
         pass
 
     def create_scheduling_event(self, values):
-        if not values.get('uuid'):
-            values['uuid'] = uuidutils.generate_uuid()
+        if not values.get("uuid"):
+            values["uuid"] = uuidutils.generate_uuid()
 
         event = models.SchedulingEvent()
         event.update(values)
@@ -80,7 +80,7 @@ class Connection(api.Connection):
         try:
             event.save()
         except db_exc.DBDuplicateEntry:
-            uuid = values['instance_uuid']
+            uuid = values["instance_uuid"]
             raise exception.InstanceSchedulingEventAlreadyExists(uuid=uuid)
         return event
 
@@ -101,7 +101,8 @@ class Connection(api.Connection):
         query = query.filter_by(instance_uuid=instance_uuid)
         query = query.filter_by(handled=handled)
         query = query.options(
-            orm.Load(models.InstanceSchedulingEvent).joinedload('*'))
+            orm.Load(models.InstanceSchedulingEvent).joinedload("*")
+        )
         try:
             return query.one()
         except NoResultFound:
@@ -123,12 +124,14 @@ class Connection(api.Connection):
         except NoResultFound:
             raise exception.InstanceSchedulingEventNotFound(uuid=event_uuid)
 
-    def update_instance_scheduling_event(self, scheduling_event_uuid, values,
-                                         instance_uuid=None):
+    def update_instance_scheduling_event(
+        self, scheduling_event_uuid, values, instance_uuid=None
+    ):
         session = get_session()
         with session.begin():
-            query = model_query(models.InstanceSchedulingEvent,
-                                session=session)
+            query = model_query(
+                models.InstanceSchedulingEvent, session=session
+            )
             query = query.filter_by(event_uuid=scheduling_event_uuid)
             if instance_uuid:
                 query = query.filter_by(instance_uuid=instance_uuid)
@@ -136,7 +139,8 @@ class Connection(api.Connection):
                 references = query.with_for_update('update').all()
             except NoResultFound:
                 raise exception.InstanceSchedulingEventNotFound(
-                    uuid=scheduling_event_uuid)
+                    uuid=scheduling_event_uuid
+                )
             for ref in references:
                 ref.update(values)
         return ref
@@ -148,8 +152,8 @@ class Connection(api.Connection):
         return query.count()
 
     def create_state_update_event(self, values):
-        if not values.get('uuid'):
-            values['uuid'] = uuidutils.generate_uuid()
+        if not values.get("uuid"):
+            values["uuid"] = uuidutils.generate_uuid()
         event = models.StateUpdateEvent()
         event.update(values)
         try:
@@ -175,8 +179,9 @@ class Connection(api.Connection):
         except NoResultFound:
             raise exception.StateUpdateEventNotFound(uuid=uuid)
 
-    def update_instance_state_update_event(self, event_uuid, instance_uuid,
-                                           values):
+    def update_instance_state_update_event(
+        self, event_uuid, instance_uuid, values
+    ):
         session = get_session()
         with session.begin():
             query = model_query(models.StateUpdateEvent, session=session)
@@ -190,8 +195,8 @@ class Connection(api.Connection):
         return ref
 
     def create_reaper_action(self, values):
-        if 'uuid' not in values:
-            values['uuid'] = uuidutils.generate_uuid()
+        if "uuid" not in values:
+            values["uuid"] = uuidutils.generate_uuid()
         action = models.ReaperAction()
         action.update(values)
         try:
@@ -216,14 +221,15 @@ class Connection(api.Connection):
             return []
 
     def get_reaper_action_by_instance(self, uuid):
-        uuid_like = "%%%s%%" % uuid
+        uuid_like = f"%{uuid}%"
         query = model_query(models.ReaperAction)
         query = query.filter(
-            models.ReaperAction.requested_instances.contains([uuid_like]))
+            models.ReaperAction.requested_instances.contains([uuid_like])
+        )
         return query.all()
 
     def get_reaper_action_by_victim(self, uuid):
-        uuid_like = "%%%s%%" % uuid
+        uuid_like = f"%{uuid}%"
         query = model_query(models.ReaperAction)
         query = query.filter(models.ReaperAction.victims.contains([uuid_like]))
         return query.all()

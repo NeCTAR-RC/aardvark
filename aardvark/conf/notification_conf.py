@@ -17,39 +17,51 @@ from oslo_config import cfg
 
 
 notification_group = cfg.OptGroup(
-    'notification',
-    title='Notification Listener Options',
-    help="Configuration options for notification service")
+    "notification",
+    title="Notification Listener Options",
+    help="Configuration options for notification service",
+)
 
 
 notification_opts = [
-    cfg.StrOpt("default_action",
+    cfg.StrOpt(
+        "default_action",
         default="handled",
-        choices=('handled', 'requeue'),
-        help='Select the default action for the received notification'),
-    cfg.MultiStrOpt('urls',
-               default=[],
-               secret=True,
-               help="Messaging URL to listen for Nova notifications."),
-    cfg.MultiStrOpt("topics",
+        choices=("handled", "requeue"),
+        help="Select the default action for the received notification",
+    ),
+    cfg.MultiStrOpt(
+        "urls",
+        default=[],
+        secret=True,
+        help="Messaging URL to listen for Nova notifications.",
+    ),
+    cfg.MultiStrOpt(
+        "topics",
         default=["versioned_notifications"],
-        help="""Set the topics where the listeners should subscribe to"""),
-    cfg.IntOpt('max_handling_retries',
+        help="""Set the topics where the listeners should subscribe to""",
+    ),
+    cfg.IntOpt(
+        "max_handling_retries",
         default=5,
         help="""
-The max number of retries of handling notifications for a given instance."""),
-    cfg.IntOpt('old_notification',
+The max number of retries of handling notifications for a given instance.""",
+    ),
+    cfg.IntOpt(
+        "old_notification",
         default=-1,
         help="""
 Age of a notification in seconds. If a notification is older than the
 configured value, the notification is not handled. If set to -1 all
-notifications will be handled"""),
-    cfg.StrOpt("executor",
+notifications will be handled""",
+    ),
+    cfg.StrOpt(
+        "executor",
         default=None,
-        choices=(None, 'blocking', 'threading', 'eventlet'),
+        choices=(None, "blocking", "threading", "eventlet"),
         help="""
 Selects where the API microversion requested by the cinderclient.
-"""
+""",
     ),
 ]
 

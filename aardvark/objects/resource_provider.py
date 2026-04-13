@@ -29,9 +29,8 @@ LOG = log.getLogger(__name__)
 
 
 class ResourceProvider(base.PlacementObject):
-
     def __init__(self, uuid, name):
-        super(ResourceProvider, self).__init__(uuid=uuid, name=name)
+        super().__init__(uuid=uuid, name=name)
         self.uuid = uuid
         self.name = name
         self._hypervisor = None
@@ -57,8 +56,9 @@ class ResourceProvider(base.PlacementObject):
     @property
     def capabilities(self):
         if not self._capabilities:
-            self._capabilities = capabilities.Capabilities(self.usages,
-                                                           self.inventories)
+            self._capabilities = capabilities.Capabilities(
+                self.usages, self.inventories
+            )
         return self._capabilities
 
     @property
@@ -70,12 +70,14 @@ class ResourceProvider(base.PlacementObject):
         self._preemptible_servers = new
         self.flavors_dict = collections.defaultdict(list)
         for server in new:
-            self.flavors_dict[server.flavor['original_name']].append(server)
+            self.flavors_dict[server.flavor["original_name"]].append(server)
 
     @property
     def preemptible_resources(self):
-        return sum((server.resources for server in self.preemptible_servers),
-                   resources.Resources())
+        return sum(
+            (server.resources for server in self.preemptible_servers),
+            resources.Resources(),
+        )
 
     @property
     def total_resources(self):
@@ -113,10 +115,13 @@ class ResourceProvider(base.PlacementObject):
     @property
     def disabled(self):
         if self._disabled is None:
-            service_name = self.hypervisor.service.get('host')
+            service_name = self.hypervisor.service.get("host")
             service = nova.service_status(service_name)
-            self._disabled = (service.forced_down or service.state != 'up'
-                              or service.status != 'enabled')
+            self._disabled = (
+                service.forced_down
+                or service.state != "up"
+                or service.status != "enabled"
+            )
         return self._disabled
 
     def populate(self, preemptible_projects, preemptible_flavors=[]):
@@ -133,8 +138,8 @@ class ResourceProvider(base.PlacementObject):
         servers = list()
         for pr_project in preemptible_projects:
             filters = {
-                'host': self.hypervisor.service.get('host'),
-                'project_id': pr_project,
+                "host": self.hypervisor.service.get("host"),
+                "project_id": pr_project,
             }
             servers += instance_list.instances(self.uuid, **filters)
         self.preemptible_servers += servers
@@ -148,8 +153,8 @@ class ResourceProvider(base.PlacementObject):
         servers = list()
         for flavor_id in preemptible_flavors:
             filters = {
-                'host': self.hypervisor.service.get('host'),
-                'flavor': flavor_id,
+                "host": self.hypervisor.service.get("host"),
+                "flavor": flavor_id,
             }
             servers += instance_list.instances(self.uuid, **filters)
         self.preemptible_servers += servers
@@ -163,22 +168,20 @@ class ResourceProvider(base.PlacementObject):
         servers = list()
         for pr_project in preemptible_projects:
             filters = {
-                'host': self.hypervisor.service.get('host'),
-                'project_id': pr_project,
+                "host": self.hypervisor.service.get("host"),
+                "project_id": pr_project,
             }
             servers += instance_list.sorted_instances(self.uuid, **filters)
         self.preemptible_servers = servers
         self.populated = True
 
     def __repr__(self):
-        return '<ResourceProvider(name: %s, uuid: %s)>' % (self.name,
-                                                           self.uuid)
+        return f"<ResourceProvider(name: {self.name}, uuid: {self.uuid})>"
 
 
 class ResourceProviderList(base.PlacementObject):
-
     def __init__(self, aggregates=None):
-        super(ResourceProviderList, self).__init__(aggregates=aggregates)
+        super().__init__(aggregates=aggregates)
         self.aggregates = aggregates
 
     @property

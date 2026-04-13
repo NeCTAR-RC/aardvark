@@ -21,24 +21,34 @@ import oslo_messaging
 CONF = aardvark.conf.CONF
 
 
-class ListenerManager(object):
-
+class ListenerManager:
     def __init__(self):
         self.listeners = []
 
     def _get_listeners(self):
-        targets = [oslo_messaging.Target(topic=topic)
-                   for topic in CONF.notification.topics]
+        targets = [
+            oslo_messaging.Target(topic=topic)
+            for topic in CONF.notification.topics
+        ]
         endpoints = [
             endpoint_objs.SchedulingEndpoint(),
-            endpoint_objs.StateUpdateEndpoint()
+            endpoint_objs.StateUpdateEndpoint(),
         ]
-        transports = [oslo_messaging.get_notification_transport(
-            CONF, url) for url in CONF.notification.urls]
+        transports = [
+            oslo_messaging.get_notification_transport(CONF, url)
+            for url in CONF.notification.urls
+        ]
         executor = CONF.notification.executor
-        return [oslo_messaging.get_notification_listener(
-            transport, targets, endpoints, executor=executor,
-            allow_requeue=True) for transport in transports]
+        return [
+            oslo_messaging.get_notification_listener(
+                transport,
+                targets,
+                endpoints,
+                executor=executor,
+                allow_requeue=True,
+            )
+            for transport in transports
+        ]
 
     def start(self):
         self.listeners = self._get_listeners()

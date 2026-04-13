@@ -14,15 +14,13 @@
 #    under the License.
 
 
-class Usage(object):
-
+class Usage:
     def __init__(self, resource, amount):
         self.resource = resource
         self.amount = amount
 
 
-class UsageList(object):
-
+class UsageList:
     @classmethod
     def not_sure_yet(cls):
         pass

@@ -24,20 +24,27 @@ CONF = aardvark.conf.CONF
 
 
 class StrategyUtilsTests(base.TestCase):
-
     def setUp(self):
-        super(StrategyUtilsTests, self).setUp()
+        super().setUp()
 
     def test_sort_combinations(self):
+        combo1 = utils.Combination(
+            provider="host1",
+            instances=["server1"],
+            leftovers=object_fakes.make_resources(vcpu=2, memory=256, disk=10),
+        )
 
-        combo1 = utils.Combination(provider='host1', instances=['server1'],
-            leftovers=object_fakes.make_resources(vcpu=2, memory=256, disk=10))
+        combo2 = utils.Combination(
+            provider="host2",
+            instances=["server2"],
+            leftovers=object_fakes.make_resources(vcpu=1, memory=512, disk=10),
+        )
 
-        combo2 = utils.Combination(provider='host2', instances=['server2'],
-            leftovers=object_fakes.make_resources(vcpu=1, memory=512, disk=10))
-
-        combo3 = utils.Combination(provider='host3', instances=['server3'],
-            leftovers=object_fakes.make_resources(vcpu=1, memory=512, disk=20))
+        combo3 = utils.Combination(
+            provider="host3",
+            instances=["server3"],
+            leftovers=object_fakes.make_resources(vcpu=1, memory=512, disk=20),
+        )
 
         combinations = [combo1, combo2, combo3]
 

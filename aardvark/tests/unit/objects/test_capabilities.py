@@ -20,9 +20,8 @@ from aardvark.tests.unit.objects import fakes
 
 
 class CapabilitiesTests(base.TestCase):
-
     def setUp(self):
-        super(CapabilitiesTests, self).setUp()
+        super().setUp()
 
     def test_capabilities(self):
         used = fakes.make_resources(vcpu=1, memory=2000, disk=20)

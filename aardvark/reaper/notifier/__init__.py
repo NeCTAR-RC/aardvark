@@ -25,7 +25,4 @@ EmailNotifier = email_notifier.EmailNotifier
 LogNotifier = log_notifier.LogNotifier
 OsloNotifier = oslo_notifier.OsloNotifier
 
-__all__ = (BaseNotifier,
-           EmailNotifier,
-           LogNotifier,
-           OsloNotifier)
+__all__ = (BaseNotifier, EmailNotifier, LogNotifier, OsloNotifier)

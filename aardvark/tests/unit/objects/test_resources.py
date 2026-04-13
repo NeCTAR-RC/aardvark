@@ -21,37 +21,40 @@ from aardvark.tests.unit.objects import fakes
 
 
 class ResourcesTests(base.TestCase):
-
     def setUp(self):
-        super(ResourcesTests, self).setUp()
+        super().setUp()
 
     def test_resources_from_flavor_payload(self):
         payload = notification_fakes.make_flavor_payload(
-            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000)
-        res = resources.Resources.obj_from_payload(payload['nova_object.data'])
+            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000
+        )
+        res = resources.Resources.obj_from_payload(payload["nova_object.data"])
         expected = fakes.make_resources(vcpu=1, memory=30000, disk=60)
         self.assertEqual(expected, res)
 
     def test_resources_from_flavor_payload_bfv(self):
         payload = notification_fakes.make_flavor_payload(
-            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000)
-        res = resources.Resources.obj_from_payload(payload['nova_object.data'],
-                                                   is_bfv=True)
+            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000
+        )
+        res = resources.Resources.obj_from_payload(
+            payload["nova_object.data"], is_bfv=True
+        )
         expected = fakes.make_resources(vcpu=1, memory=30000)
         self.assertEqual(expected, res)
 
     def test_resources_from_flavor(self):
         flavor = fakes.make_flavor(
-            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000)
+            "uuid", vcpus=1, ephemeral=20, root_gb=30, swap=10, ram=30000
+        )
         res = resources.Resources.obj_from_flavor(flavor)
         expected = fakes.make_resources(vcpu=1, memory=30000, disk=60)
         self.assertEqual(expected, res)
 
     def test_resources_from_inventories(self):
         inventories = {
-            'VCPU': fakes.make_inventory_dict(ratio=16, total=8),
-            'DISK_GB': fakes.make_inventory_dict(reserved=5, total=80),
-            'MEMORY_MB': fakes.make_inventory_dict(reserved=200, total=1200)
+            "VCPU": fakes.make_inventory_dict(ratio=16, total=8),
+            "DISK_GB": fakes.make_inventory_dict(reserved=5, total=80),
+            "MEMORY_MB": fakes.make_inventory_dict(reserved=200, total=1200),
         }
         res = resources.Resources.obj_from_inventories(inventories)
         expected = fakes.make_resources(vcpu=128, disk=75, memory=1000)

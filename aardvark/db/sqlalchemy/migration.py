@@ -27,12 +27,16 @@ def get_manager():
     global _MANAGER
     if not _MANAGER:
         alembic_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'alembic.ini'))
+            os.path.join(os.path.dirname(__file__), "alembic.ini")
+        )
         migrate_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'alembic'))
-        migration_config = {'alembic_ini_path': alembic_path,
-                            'alembic_repo_path': migrate_path,
-                            'db_url': CONF.database.connection}
+            os.path.join(os.path.dirname(__file__), "alembic")
+        )
+        migration_config = {
+            "alembic_ini_path": alembic_path,
+            "alembic_repo_path": migrate_path,
+            "db_url": CONF.database.connection,
+        }
         _MANAGER = manager.MigrationManager(migration_config)
 
     return _MANAGER
@@ -53,7 +57,7 @@ def upgrade(version):
     :param version: Desired database version
     :type version: string
     """
-    version = version or 'head'
+    version = version or "head"
 
     get_manager().upgrade(version)
 

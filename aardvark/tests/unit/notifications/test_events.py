@@ -22,15 +22,13 @@ from aardvark.tests.unit.notifications import fakes
 
 
 class EventTests(base.TestCase):
-
     def setUp(self):
-        super(EventTests, self).setUp()
+        super().setUp()
 
 
 class SchedulingEventTests(EventTests):
-
     def setUp(self):
-        super(SchedulingEventTests, self).setUp()
+        super().setUp()
 
     def test_scheduling_event(self):
         instances = ["instance_uuid1", "instance_uuid2"]
@@ -38,7 +36,8 @@ class SchedulingEventTests(EventTests):
         request_id = 123
         project = "project"
         payload = fakes.make_scheduling_payload(
-            instances, aggregates=aggs, req_id=request_id, project=project)
+            instances, aggregates=aggs, req_id=request_id, project=project
+        )
         event = events.SchedulingEvent.from_payload(payload)
         self.assertEqual(instances, event.instance_uuids)
         self.assertEqual(aggs, event.aggregates)
@@ -46,7 +45,7 @@ class SchedulingEventTests(EventTests):
         self.assertEqual(project, event.project_id)
         self.assertTrue(event.multiple_instances)
 
-    @mock.patch('aardvark.utils.get_default_aggregates')
+    @mock.patch("aardvark.utils.get_default_aggregates")
     def test_scheduling_event_no_aggregates(self, mock_aggs):
         mock_aggs.return_value = []
         instances = ["instance_uuid1"]
@@ -58,9 +57,8 @@ class SchedulingEventTests(EventTests):
 
 
 class InstanceUpdateEventTests(EventTests):
-
     def setUp(self):
-        super(InstanceUpdateEventTests, self).setUp()
+        super().setUp()
 
     def test_instance_update_event(self):
         instance = "instance_uuid1"
@@ -70,7 +68,8 @@ class InstanceUpdateEventTests(EventTests):
         flavor_uuid = "flavor_uuid"
 
         payload = fakes.make_state_update_payload(
-            instance, new_state, old_state, image_uuid, flavor_uuid)
+            instance, new_state, old_state, image_uuid, flavor_uuid
+        )
         event = events.StateUpdateEvent.from_payload(payload)
         self.assertEqual(instance, event.instance_uuid)
         self.assertEqual(new_state, event.new_state)

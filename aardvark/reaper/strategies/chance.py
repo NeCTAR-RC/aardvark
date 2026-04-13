@@ -28,12 +28,12 @@ CONF = aardvark.conf.CONF
 
 
 class ChanceStrategy(strategy.ReaperStrategy):
-
     def __init__(self, watermark_mode=False):
-        super(ChanceStrategy, self).__init__(watermark_mode=watermark_mode)
+        super().__init__(watermark_mode=watermark_mode)
 
-    def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects, flavors=None):
+    def get_preemptible_servers(
+        self, requested, hosts, num_instances, projects, flavors=None
+    ):
         """Implements the strategy of freeing up the requested resources.
 
         :param req_spec: an instance of the RequestSpec class representing the
@@ -56,13 +56,15 @@ class ChanceStrategy(strategy.ReaperStrategy):
             valid_hosts = list()
             for host in hosts:
                 if host.disabled:
-                    LOG.info("Skipping host %s because it is disabled",
-                             host.name)
+                    LOG.info(
+                        "Skipping host %s because it is disabled", host.name
+                    )
                     continue
-                LOG.debug("Checing host %s", host.name)
+                LOG.debug("Checking host %s", host.name)
                 host.populate(projects)
                 resources = strategy.host_potential(
-                    host, host.preemptible_resources, not self.watermark_mode)
+                    host, host.preemptible_resources, not self.watermark_mode
+                )
                 if requested <= resources:
                     # Create a list with the hosts that can potentially provide
                     # the requested resources.
@@ -80,8 +82,9 @@ class ChanceStrategy(strategy.ReaperStrategy):
                 if not host.disabled:
                     valid.append(host)
                 else:
-                    LOG.info("Skipping host %s because it is disabled",
-                             host.name)
+                    LOG.info(
+                        "Skipping host %s because it is disabled", host.name
+                    )
             return valid
 
         selected_servers = list()
@@ -89,7 +92,6 @@ class ChanceStrategy(strategy.ReaperStrategy):
         gathered = resources_obj.Resources()
 
         for i in range(0, max_attempts):
-
             if self.watermark_mode:
                 valid = [h for h in populate_hosts(hosts, selected_hosts)]
             else:
@@ -147,7 +149,8 @@ class ChanceStrategy(strategy.ReaperStrategy):
         resources = resources_obj.Resources()
         # If the already available are enough, just return an empty list
         host_resources = strategy.host_potential(
-            host, resources, not self.watermark_mode)
+            host, resources, not self.watermark_mode
+        )
         if requested <= host_resources:
             host.used_resources += requested
             host.reserved_spots += 1
@@ -170,7 +173,8 @@ class ChanceStrategy(strategy.ReaperStrategy):
             gathered_resources += server.resources
 
             host_resources = strategy.host_potential(
-                host, gathered_resources, not self.watermark_mode)
+                host, gathered_resources, not self.watermark_mode
+            )
             if host_resources >= requested:
                 # This is the point we want to reach. It means that requested
                 # resources will be available after culling selected servers.
@@ -194,7 +198,9 @@ class ChanceStrategy(strategy.ReaperStrategy):
             host.used_resources -= gathered_resources - requested
             host.reserved_spots += 1
             host.preemptible_servers = [
-                pr_server for pr_server in host.preemptible_servers
-                if pr_server not in selected]
+                pr_server
+                for pr_server in host.preemptible_servers
+                if pr_server not in selected
+            ]
 
         return selected

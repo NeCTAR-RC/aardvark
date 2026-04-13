@@ -25,31 +25,30 @@ CONF = aardvark.conf.CONF
 
 
 class ReaperStrategyTests(base.TestCase):
-
     def setUp(self):
-        super(ReaperStrategyTests, self).setUp()
+        super().setUp()
 
     def test_check_spots(self):
         strategy = chance.ChanceStrategy(False)
-        hosts = [
-            object_fakes.make_resource_provider(reserved_spots=1)
-        ]
+        hosts = [object_fakes.make_resource_provider(reserved_spots=1)]
         # No exception is raised
         strategy.check_spots(hosts, 1)
 
         # Asking for two slots should raise it
-        self.assertRaises(exception.NotEnoughResources,
-                          strategy.check_spots, hosts, 2)
+        self.assertRaises(
+            exception.NotEnoughResources, strategy.check_spots, hosts, 2
+        )
 
     def test_check_spots_multiple_hosts(self):
         strategy = chance.ChanceStrategy(False)
         hosts = [
             object_fakes.make_resource_provider(reserved_spots=1),
-            object_fakes.make_resource_provider(reserved_spots=1)
+            object_fakes.make_resource_provider(reserved_spots=1),
         ]
         # No exception is raised
         strategy.check_spots(hosts, 2)
 
         # Asking for more spots should raise the exception
-        self.assertRaises(exception.NotEnoughResources,
-                          strategy.check_spots, hosts, 3)
+        self.assertRaises(
+            exception.NotEnoughResources, strategy.check_spots, hosts, 3
+        )

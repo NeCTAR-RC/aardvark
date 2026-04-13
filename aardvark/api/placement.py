@@ -25,8 +25,8 @@ def get_resource_providers(aggregates=None):
     client = _get_placement_client()
     result = client.resource_providers(aggregates)
     from aardvark.objects import resource_provider as rp_obj
-    return [rp_obj.ResourceProvider(rp['uuid'], rp['name'])
-            for rp in result]
+
+    return [rp_obj.ResourceProvider(rp["uuid"], rp["name"]) for rp in result]
 
 
 def get_resource_provider_usages(resource_provider):
@@ -43,10 +43,10 @@ def get_resource_provider_inventories(resource_provider):
 
 def get_consumer_allocations(consumer, rp_uuid):
     client = _get_placement_client()
-    allocations = client.get_allocations(consumer)['allocations']
+    allocations = client.get_allocations(consumer)["allocations"]
     try:
-        alloc_res = allocations[rp_uuid]['resources']
-    except (KeyError):
+        alloc_res = allocations[rp_uuid]["resources"]
+    except KeyError:
         # This means that the consumer does not have
         # allocations to this resource provider so
         # just return empty resources.

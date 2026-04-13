@@ -28,7 +28,7 @@ def host_potential(host, resources, include_free):
     return resources
 
 
-class ReaperStrategy(object, metaclass=abc.ABCMeta):
+class ReaperStrategy(metaclass=abc.ABCMeta):
     """The base Reaper Strategy class
 
     This is the class that all the Strategies for the Reaper Service have to
@@ -39,8 +39,9 @@ class ReaperStrategy(object, metaclass=abc.ABCMeta):
         self.watermark_mode = watermark_mode
 
     @abc.abstractmethod
-    def get_preemptible_servers(self, requested, hosts, num_instances,
-                                projects=None, flavors=None):
+    def get_preemptible_servers(
+        self, requested, hosts, num_instances, projects=None, flavors=None
+    ):
         # NOTE(ttsiouts): Every driver should override this method and
         # implement the strategy of the freeing
         pass
@@ -53,5 +54,5 @@ class ReaperStrategy(object, metaclass=abc.ABCMeta):
         spots = sum([sh.reserved_spots for sh in selected_hosts])
         LOG.info("Requested %s spots and found %s", num_instances, spots)
         if spots < num_instances:
-            message = 'Not enough preemptible resources'
+            message = "Not enough preemptible resources"
             raise exception.NotEnoughResources(message)

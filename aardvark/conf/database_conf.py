@@ -17,15 +17,14 @@ from oslo_config import cfg
 from oslo_db import options
 
 
-_DEFAULT_SQL_CONNECTION = 'sqlite:///' + 'aardvark.sqlite'
+_DEFAULT_SQL_CONNECTION = "sqlite:///" + "aardvark.sqlite"
 
-database_group = cfg.OptGroup(name='database',
-                              title='Options for Aardvark Database')
+database_group = cfg.OptGroup(
+    name="database", title="Options for Aardvark Database"
+)
 
 sql_opts = [
-    cfg.StrOpt('mysql_engine',
-               default='InnoDB',
-               help='MySQL engine to use.')
+    cfg.StrOpt("mysql_engine", default="InnoDB", help="MySQL engine to use.")
 ]
 
 
@@ -36,6 +35,4 @@ def register_opts(conf):
 
 
 def list_opts():
-    return {
-        database_group: sql_opts
-    }
+    return {database_group: sql_opts}

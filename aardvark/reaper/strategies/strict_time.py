@@ -25,9 +25,8 @@ CONF = aardvark.conf.CONF
 
 
 class StrictTimeStrategy(strict.StrictStrategy):
-
     def __init__(self, watermark_mode):
-        super(StrictTimeStrategy, self).__init__(watermark_mode=watermark_mode)
+        super().__init__(watermark_mode=watermark_mode)
 
     def populate_host(self, host, projects):
         host.populate_sorted(projects)
@@ -37,8 +36,9 @@ class StrictTimeStrategy(strict.StrictStrategy):
         for fid, instance_list in host.flavors_dict.items():
             if requested <= instance_list[0].resources:
                 valid_servers.append(instance_list[0])
-            times = res_obj.Resources.min_ratio(requested,
-                                                instance_list[0].resources)
+            times = res_obj.Resources.min_ratio(
+                requested, instance_list[0].resources
+            )
             if times <= len(host.flavors_dict[fid]):
                 valid_servers += host.flavors_dict[fid][:times]
             else:
