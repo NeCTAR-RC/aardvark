@@ -139,7 +139,7 @@ class StateUpdateEndpoint(base.NotificationEndpoint):
             info = events.SchedulingEvent.get_by_instance_uuid(uuid)
             info.set_handled(instance_uuid=uuid, handled=True)
         except exception.DBException:
-            # Maybe there is a race. Raising RetryException to rerty
+            # Maybe there is a race. Raising RetryException to retry
             LOG.debug("Retrying to retrieve info for uuid <%s>", uuid)
             raise exception.RetryException()
 
